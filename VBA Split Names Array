@@ -1,0 +1,83 @@
+Option Explicit
+
+Type Names
+    Name As String
+    Surname As String
+    Middlenames As String
+    Initial As String
+End Type
+
+Sub main()
+
+    
+    Debug.Print AnalyzeName("aaaaaaaa bbbbbbbbb ccccccc").Initial
+    Debug.Print AnalyzeName("aaaaaaaa bbbbbbbbb ccccccc").Name
+    Debug.Print AnalyzeName("aaaaaaaa bbbbbbbbb ccccccc").Middlenames
+    Debug.Print AnalyzeName("aaaaaaaa bbbbbbbbb ccccccc").Surname
+    
+    
+End Sub
+
+Private Function AnalyzeName(Name As String) As Names
+    
+    Dim nameArray As Variant
+    Dim middle As String
+    nameArray = SplitName(Name, " ")
+    
+    AnalyzeName.Name = nameArray(LBound(nameArray))
+    AnalyzeName.Initial = UCase(Mid(Name, 1, 1))
+    AnalyzeName.Surname = nameArray(UBound(nameArray))
+    
+    'Delete first name
+    middle = Replace(Name, nameArray(LBound(nameArray)), "")
+    'Delete last name and return
+    AnalyzeName.Middlenames = Trim(Replace(middle, nameArray(UBound(nameArray)), ""))
+    
+    
+End Function
+
+Private Function SplitName(Name As String, Delimiter As String) As Variant
+
+    Dim i As Long
+    Dim fullName As String
+    Dim numberDelimiter As Long
+    Dim arrayIndex As Long
+    Dim subString As String
+    Dim splitArray() As Variant
+    
+    fullName = Trim(Name)
+    numberDelimiter = 0
+    arrayIndex = 0
+    subString = ""
+    
+    'Find number of delimiter in the text
+    For i = 1 To Len(fullName)
+        If Mid(fullName, i, 1) = Delimiter Then
+            numberDelimiter = numberDelimiter + 1
+        End If
+    Next i
+    
+    If numberDelimiter = 0 Then
+        SplitName = "invalid delimiter"
+        Exit Function
+    End If
+    
+    ReDim splitArray(0 To numberDelimiter)
+    
+    For i = 1 To Len(fullName)
+        If Mid(fullName, i, 1) <> Delimiter Then
+            subString = subString + Mid(fullName, i, 1)
+        Else
+            splitArray(arrayIndex) = subString
+            subString = ""
+            arrayIndex = arrayIndex + 1
+        End If
+    Next i
+    
+    'get the last substring into the array
+    splitArray(numberDelimiter) = subString
+    
+    'return splitarray
+    SplitName = splitArray
+    
+End Function
