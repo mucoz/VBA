@@ -15,7 +15,7 @@ End Type
 Sub main()
     
     Dim FullName As Names
-    FullName = AnalyzeName("mustafa can hasan öztürk hekim")
+    FullName = AnalyzeName("aaa bbbb ccccc dddddd eeeeeee")
     
     
     Debug.Print FullName.Name
