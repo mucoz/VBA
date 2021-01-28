@@ -1,19 +1,30 @@
 Option Explicit
 
 Type Names
+
     Name As String
     Surname As String
     Middlenames As String
-    Initial As String
+    
+    NameInitial As String
+    SurnameInitial As String
+    MiddlenamesInitials As String
+    
 End Type
 
 Sub main()
-
     
-    Debug.Print AnalyzeName("aaaaaaaa bbbbbbbbb ccccccc").Initial
-    Debug.Print AnalyzeName("aaaaaaaa bbbbbbbbb ccccccc").Name
-    Debug.Print AnalyzeName("aaaaaaaa bbbbbbbbb ccccccc").Middlenames
-    Debug.Print AnalyzeName("aaaaaaaa bbbbbbbbb ccccccc").Surname
+    Dim FullName As Names
+    FullName = AnalyzeName("mustafa can hasan öztürk hekim")
+    
+    
+    Debug.Print FullName.Name
+    Debug.Print FullName.Middlenames
+    Debug.Print FullName.Surname
+    
+    Debug.Print FullName.NameInitial
+    Debug.Print FullName.MiddlenamesInitials
+    Debug.Print FullName.SurnameInitial
     
     
 End Sub
@@ -21,52 +32,88 @@ End Sub
 Private Function AnalyzeName(Name As String) As Names
     
     Dim nameArray As Variant
-    Dim middle As String
+    Dim middleArray As Variant
+    Dim i As Integer
+    
+    Dim name_ As String
+    Dim middle_ As String
+    Dim middleInitial_ As String
+    Dim surname_ As String
+    
     nameArray = SplitName(Name, " ")
     
-    AnalyzeName.Name = nameArray(LBound(nameArray))
-    AnalyzeName.Initial = UCase(Mid(Name, 1, 1))
-    AnalyzeName.Surname = nameArray(UBound(nameArray))
+    If IsArray(nameArray) = False Then
+        AnalyzeName.Name = Name
+        Exit Function
+    End If
+    name_ = nameArray(LBound(nameArray))
+    surname_ = nameArray(UBound(nameArray))
     
+    AnalyzeName.Name = UCase(Mid(name_, 1, 1)) & LCase(Mid(name_, 2, Len(name_) - 1))
+    AnalyzeName.NameInitial = UCase(Mid(Name, 1, 1)) & "."
+    AnalyzeName.Surname = UCase(Mid(surname_, 1, 1)) & LCase(Mid(surname_, 2, Len(surname_) - 1))
+    AnalyzeName.SurnameInitial = UCase(Mid(surname_, 1, 1)) & "."
     'Delete first name
-    middle = Replace(Name, nameArray(LBound(nameArray)), "")
+    middle_ = Replace(Name, name_, "")
     'Delete last name and return
-    AnalyzeName.Middlenames = Trim(Replace(middle, nameArray(UBound(nameArray)), ""))
+    middle_ = Trim(Replace(middle_, surname_, ""))
     
+    If middle_ = "" Then Exit Function
+    
+    'Split middle names
+    middleArray = SplitName(middle_, " ")
+    
+    If IsArray(middleArray) = False Then
+        AnalyzeName.Middlenames = UCase(Left(middle_, 1)) + Mid(middle_, 2, Len(middle_) - 1)
+        AnalyzeName.MiddlenamesInitials = UCase(Left(middle_, 1)) + "."
+        Exit Function
+    End If
+
+    middle_ = ""
+    middleInitial_ = ""
+
+    For i = LBound(middleArray) To UBound(middleArray)
+        middleArray(i) = UCase(Mid(middleArray(i), 1, 1)) + LCase(Mid(middleArray(i), 2, Len(middleArray(i))))
+        middle_ = middle_ + middleArray(i) + " "
+        middleInitial_ = middleInitial_ + Left(middleArray(i), 1) + ". "
+    Next i
+    
+    AnalyzeName.Middlenames = Trim(middle_)
+    AnalyzeName.MiddlenamesInitials = Trim(middleInitial_)
     
 End Function
 
 Private Function SplitName(Name As String, Delimiter As String) As Variant
 
     Dim i As Long
-    Dim fullName As String
+    Dim FullName As String
     Dim numberDelimiter As Long
     Dim arrayIndex As Long
     Dim subString As String
     Dim splitArray() As Variant
     
-    fullName = Trim(Name)
+    FullName = Trim(Name)
     numberDelimiter = 0
     arrayIndex = 0
     subString = ""
     
     'Find number of delimiter in the text
-    For i = 1 To Len(fullName)
-        If Mid(fullName, i, 1) = Delimiter Then
+    For i = 1 To Len(FullName)
+        If Mid(FullName, i, 1) = Delimiter Then
             numberDelimiter = numberDelimiter + 1
         End If
     Next i
     
     If numberDelimiter = 0 Then
-        SplitName = "invalid delimiter"
+        SplitName = -1
         Exit Function
     End If
     
     ReDim splitArray(0 To numberDelimiter)
     
-    For i = 1 To Len(fullName)
-        If Mid(fullName, i, 1) <> Delimiter Then
-            subString = subString + Mid(fullName, i, 1)
+    For i = 1 To Len(FullName)
+        If Mid(FullName, i, 1) <> Delimiter Then
+            subString = subString + Mid(FullName, i, 1)
         Else
             splitArray(arrayIndex) = subString
             subString = ""
