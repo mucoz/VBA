@@ -35,6 +35,7 @@ Public Function Extension(Path As String) As String
     End If
         
 End Function
+
 Public Function Exist(FilePath As String) As Boolean
 
     If FSO.fileexists(FilePath) = True Then
@@ -103,11 +104,12 @@ Public Sub Delete(Path As String)
     
     If Exist(Path) = True Then
     
-        FSO.Delete Path
+        FSO.DeleteFile Path
     
     End If
     
 End Sub
+
 Public Function Name(Path As String) As String
     
     If Exist(Path) = True Then
