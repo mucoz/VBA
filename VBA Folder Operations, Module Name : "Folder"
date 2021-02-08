@@ -1,0 +1,126 @@
+Option Explicit
+
+'Created by Mustafa Can Ozturk on 08.02.2021
+'===========================================
+'The functions below will be used for folder operations
+'It includes the most common functions
+
+'Functions:
+'Exist, Create, Delete, ParentFolder, SubFolders
+'===========================================
+
+'These fiels will be used for "SubFolders" function
+Private Arr() As String
+Private Counter As Long
+
+'=======Auxiliary Functions=======
+Private Function FSO() As FileSystemObject
+    
+    Set FSO = New FileSystemObject
+    
+End Function
+'=======End of Auxiliary Functions=======
+
+Public Function ParentFolder(Path As String) As String
+    
+    ParentFolder = FSO.GetParentFolderName(Path) + DetectSlash(Path)
+    
+End Function
+
+Private Function DetectSlash(Path As String) As String
+    
+    If InStr(Path, "\") > 0 Then
+    
+        DetectSlash = "\"
+        
+    ElseIf InStr(Path, "/") > 0 Then
+    
+        DetectSlash = "/"
+        
+    End If
+    
+End Function
+
+Public Function Exist(FolderPath As String) As Boolean
+
+    If FSO.FolderExists(FolderPath) = True Then
+        
+        Exist = True
+    
+    Else
+    
+        Exist = False
+        
+    End If
+    
+End Function
+
+Public Sub Delete(Path As String)
+    
+    If Exist(Path) = True Then
+    
+        FSO.DeleteFolder Path
+        
+    End If
+    
+End Sub
+
+Public Sub Create(Path As String)
+
+    If Exist(Path) = False Then
+    
+        FSO.CreateFolder Path
+    
+    End If
+
+End Sub
+
+Public Function SubFolders(MainPath As String) As Variant
+    
+    Erase Arr
+    
+    Counter = 0
+    
+    Dim myArr
+    
+    myArr = GetSubFolders(MainPath)
+    
+    SubFolders = myArr
+
+End Function
+
+Private Function GetSubFolders(RootPath As String) As Variant
+    
+    Dim fld As Object
+    Dim sf As Object
+    Dim myArr
+    
+    If Exist(RootPath) = False Then
+        
+        GetSubFolders = "INVALID PATH"
+        Exit Function
+        
+    End If
+    
+    Set fld = FSO.GetFolder(RootPath)
+    
+    For Each sf In fld.SubFolders
+        
+        ReDim Preserve Arr(Counter)
+        
+        Arr(Counter) = sf.Path
+        
+        Counter = Counter + 1
+        
+        myArr = GetSubFolders(sf.Path)
+        
+        DoEvents
+    
+    Next
+    
+    GetSubFolders = Arr
+    
+    Set sf = Nothing
+    Set fld = Nothing
+    
+End Function
