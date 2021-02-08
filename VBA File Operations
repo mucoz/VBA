@@ -4,7 +4,7 @@ Option Explicit
 '===========================================
 'The functions below will be used for file operations
 'It includes the most common functions
-
+'It needs to be used with "File" module
 'Functions:
 'Copy , Move, Delete, Exist, Name, BuiltPath, ParentFolder, Extension, GetPath, GetPaths
 '===========================================
