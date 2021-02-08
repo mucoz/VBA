@@ -1,0 +1,181 @@
+Option Explicit
+
+'Created by Mustafa Can Ozturk on 08.02.2021
+'===========================================
+'The functions below will be used for file operations
+'It includes the most common functions
+
+'Functions:
+'Copy , Move, Delete, Exist, Name, BuiltPath, ParentFolder, Extension, GetPath, GetPaths
+'===========================================
+
+
+'=======Auxiliary Functions=======
+Private Function FSO() As Object
+    
+    Set FSO = CreateObject("Scripting.FileSystemObject")
+    
+End Function
+'=======End of Auxiliary Functions=======
+
+Public Function ParentFolder(Path As String) As String
+    
+    ParentFolder = FSO.GetParentFolderName(Path) + DetectSlash(Path)
+    
+End Function
+
+Public Function Extension(Path As String) As String
+    
+    Extension = "INVALID"
+    
+    If Exist(Path) = True Then
+        
+        Extension = FSO.GetExtensionName(Path)
+    
+    End If
+        
+End Function
+Public Function Exist(FilePath As String) As Boolean
+
+    If FSO.fileexists(FilePath) = True Then
+        
+        Exist = True
+    
+    Else
+    
+        Exist = False
+        
+    End If
+    
+End Function
+
+Public Function Move(FromPath As String, ToPathWithDifferentName As String) As Boolean
+    
+    If Exist(FromPath) = False Then
+    
+        Move = False
+        Exit Function
+    
+    End If
+    
+    FSO.Move FromPath, ToPathWithDifferentName
+    
+    Move = True
+    
+End Function
+
+Public Function Copy(Source As String, Destination As String) As Boolean
+    
+    If Exist(Source) = False Then
+    
+        Copy = False
+        Exit Function
+        
+    End If
+    
+    If Right(Destination, 1) <> "\" Or Right(Destination, 1) <> "/" Then
+        
+        Destination = Destination + DetectSlash(Destination)
+    
+    End If
+    
+    FSO.Copy Source, Destination
+    
+    Copy = True
+    
+End Function
+
+Private Function DetectSlash(Path As String) As String
+    
+    If InStr(Path, "\") > 0 Then
+    
+        DetectSlash = "\"
+        
+    ElseIf InStr(Path, "/") > 0 Then
+    
+        DetectSlash = "/"
+        
+    End If
+    
+End Function
+
+Public Sub Delete(Path As String)
+    
+    If Exist(Path) = True Then
+    
+        FSO.Delete Path
+    
+    End If
+    
+End Sub
+Public Function Name(Path As String) As String
+    
+    If Exist(Path) = True Then
+    
+        Name = FSO.GetFileName(Path)
+        
+    End If
+
+End Function
+
+Public Function BuildPath(Path As String, FileName As String) As String
+
+    BuildPath = FSO.BuildPath(Path, FileName)
+
+End Function
+
+Public Function GetPath(FileDescription As String, FileExtension As String, WindowHeader As String) As String
+    
+    Dim fd As FileDialog
+    
+    Set fd = Application.FileDialog(msoFileDialogFilePicker)
+    
+    Dim ExcelFile As Variant
+    
+    With fd
+        .Title = WindowHeader
+        .ButtonName = "Select"
+        .Filters.Clear
+        .Filters.add FileDescription, FileExtension
+        .AllowMultiSelect = False
+        
+        If .Show = -1 Then
+            GetPath = .SelectedItems(1)
+        Else
+            GetPath = ""
+        End If
+    
+    End With
+
+End Function
+
+Public Function GetPaths(FileDescription As String, FileExtension As String, WindowHeader As String) As Variant
+    
+    Dim fd As FileDialog
+    Dim i As Long
+    Dim files() As Variant
+    
+    Set fd = Application.FileDialog(msoFileDialogFilePicker)
+    
+    With fd
+        .Title = WindowHeader
+        .ButtonName = "Select"
+        .Filters.Clear
+        .Filters.add FileDescription, FileExtension
+        .AllowMultiSelect = True
+        
+        If .Show = -1 Then
+            For i = 1 To .SelectedItems.Count
+            ReDim Preserve files(i)
+            files(i) = .SelectedItems(i)
+            Next i
+        Else
+            ReDim Preserve files(1)
+            files(1) = ""
+        End If
+    
+    End With
+    
+    GetPaths = files
+
+End Function
