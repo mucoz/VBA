@@ -6,7 +6,7 @@ Option Explicit
 'It includes the most common functions
 'It needs to be used with "File" module
 'Functions:
-'Copy , Move, Delete, Exist, Rename, BuiltPath, ParentFolder, GetPath, GetPaths
+'Copy , Move, Delete, Exist, Rename, BuiltPath, ParentFolder, GetPath, GetPaths, OpenZipFile
 'Properties:
 'Name, Extension
 '===========================================
