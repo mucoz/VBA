@@ -6,7 +6,9 @@ Option Explicit
 'It includes the most common functions
 'It needs to be used with "File" module
 'Functions:
-'Copy , Move, Delete, Exist, Name, BuiltPath, ParentFolder, Extension, GetPath, GetPaths
+'Copy , Move, Delete, Exist, Rename, BuiltPath, ParentFolder, GetPath, GetPaths
+'Properties:
+'Name, Extension
 '===========================================
 
 
@@ -18,23 +20,25 @@ Private Function FSO() As Object
 End Function
 '=======End of Auxiliary Functions=======
 
-Public Function ParentFolder(Path As String) As String
+Public Property Get ParentFolder(Path As String) As String
     
     ParentFolder = FSO.GetParentFolderName(Path) + DetectSlash(Path)
     
-End Function
+End Property
 
-Public Function Extension(Path As String) As String
-    
-    Extension = "INVALID"
+Public Property Get Extension(Path As String) As String
     
     If Exist(Path) = True Then
         
         Extension = FSO.GetExtensionName(Path)
     
+    Else
+    
+        Extension = "NOT FOUND"
+        
     End If
         
-End Function
+End Property
 
 Public Function Exist(FilePath As String) As Boolean
 
@@ -49,6 +53,45 @@ Public Function Exist(FilePath As String) As Boolean
     End If
     
 End Function
+
+Public Sub Rename(Path As String, NewName As String)
+    
+    Dim baseFolder As String
+    Dim defaultExtension As String
+    
+    If Exist(Path) = True Then
+        
+        baseFolder = ParentFolder(Path)
+        defaultExtension = "." + Extension(Path)
+        
+        If hasExtension(NewName) = False Then
+        
+            Name Path As baseFolder + NewName + defaultExtension
+        
+        Else
+        
+            Name Path As baseFolder + NewName
+            
+        End If
+    
+    End If
+
+End Sub
+
+Private Function hasExtension(FileName As String) As Boolean
+    
+    If Right(FileName, 4) Like ".???" Then
+    
+        hasExtension = True
+    
+    Else
+    
+        hasExtension = False
+        
+    End If
+    
+End Function
+
 
 Public Function Move(FromPath As String, ToPathWithDifferentName As String) As Boolean
     
@@ -110,15 +153,19 @@ Public Sub Delete(Path As String)
     
 End Sub
 
-Public Function Name(Path As String) As String
+Public Property Get Name(Path As String) As String
     
     If Exist(Path) = True Then
     
         Name = FSO.GetFileName(Path)
         
+    Else
+        
+        Name = "NOT FOUND"
+        
     End If
 
-End Function
+End Property
 
 Public Function BuildPath(Path As String, FileName As String) As String
 
@@ -138,7 +185,7 @@ Public Function GetPath(FileDescription As String, FileExtension As String, Wind
         .Title = WindowHeader
         .ButtonName = "Select"
         .Filters.Clear
-        .Filters.add FileDescription, FileExtension
+        .Filters.Add FileDescription, FileExtension
         .AllowMultiSelect = False
         
         If .Show = -1 Then
@@ -163,7 +210,7 @@ Public Function GetPaths(FileDescription As String, FileExtension As String, Win
         .Title = WindowHeader
         .ButtonName = "Select"
         .Filters.Clear
-        .Filters.add FileDescription, FileExtension
+        .Filters.Add FileDescription, FileExtension
         .AllowMultiSelect = True
         
         If .Show = -1 Then
@@ -181,3 +228,9 @@ Public Function GetPaths(FileDescription As String, FileExtension As String, Win
     GetPaths = files
 
 End Function
+
+Public Sub OpenZipFile(FilePath)
+
+    Shell "Explorer.exe /e, " & FilePath, vbNormalFocus
+    
+End Sub
