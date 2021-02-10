@@ -1,0 +1,190 @@
+Option Explicit
+
+'Created by Mustafa Can Ozturk on 10.02.2021
+'===========================================
+'The functions below will be used for file operations
+'It includes the most common functions
+'It needs to be used in "Window" module
+'Functions:
+'ActivateWindow, CloseWindow, MinimizeWindow, MaximizeWindow, MoveWindow, ResizeWindow, GetAppNames
+'Properties:
+'GetActiveWindowTitle
+'===========================================
+
+
+
+'====API's to get application names=============
+'#If Win64 Or VBA7 Then
+
+'Declare PtrSafe Function GetClassName Lib "user32" Alias "GetClassNameA" (ByVal hwnd As Long, ByVal lpClassName As String, ByVal nMaxCount As Long) As Long
+'Declare PtrSafe Function GetDesktopWindow Lib "user32" () As Long
+'Declare PtrSafe Function GetWindow Lib "user32" (ByVal hwnd As Long, ByVal wCmd As Long) As Long
+'Declare PtrSafe Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long) As Long
+'Declare PtrSafe Function GetWindowText Lib "user32" Alias "GetWindowTextA" (ByVal hwnd As Long, ByVal lpString As String, ByVal aint As Long) As Long
+
+'#Else
+
+Private Declare Function GetClassName Lib "user32" Alias "GetClassNameA" (ByVal hwnd As Long, ByVal lpClassName As String, ByVal nMaxCount As Long) As Long
+Private Declare Function GetDesktopWindow Lib "user32" () As Long
+Private Declare Function GetWindow Lib "user32" (ByVal hwnd As Long, ByVal wCmd As Long) As Long
+Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long) As Long
+Private Declare Function GetWindowText Lib "user32" Alias "GetWindowTextA" (ByVal hwnd As Long, ByVal lpString As String, ByVal aint As Long) As Long
+Private Declare Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+Private Declare Function SendMessage Lib "user32" Alias "SendMessageA" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wParam As Long, lParam As Long) As Long
+Private Declare Function ShowWindow Lib "user32" (ByVal hwnd As Long, ByVal nCmdShow As Long) As Long
+Private Declare Function GetForegroundWindow Lib "user32" () As Long
+Private Declare Function SetForegroundWindow Lib "user32" (ByVal hwnd As Long) As Long
+Private Declare Function GetWindowTextLength Lib "user32" Alias "GetWindowTextLengthA" (ByVal hwnd As Long) As Long
+Private Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
+Declare Function MoveWindow Lib "user32" (ByVal hwnd As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal bRepaint As Long) As Long
+
+'#End If
+
+
+'===================================================================================
+'CONSTANTS
+'These are the constants for Windows API's
+Const GW_CHILD = 5
+Const GW_HWNDNEXT = 2
+Const GWL_STYLE = (-16)
+Const WS_VISIBLE = &H10000000
+Const MAX_LEN = 255
+
+Const WM_CLOSE = &H10
+Const WM_ACTIVATE = &H6
+Const WM_SHOWWINDOW = &H18
+Const WA_ACTIVE = 1
+Const WM_ACTIVATEAPP = &H1C
+Const WM_SETFOCUS = &H7
+Const WM_ENABLE = &HA
+
+Const SW_MAXIMIZE As Long = 3
+Const SW_MINIMIZE As Long = 6
+Const SW_RESTORE As Long = 9
+
+Public Function GetAppNames() As Variant
+    
+    Dim data As New Collection                '() As String
+    Dim DataArr() As Variant
+    Dim xStr As String
+    Dim xStrLen As Long
+    Dim xHandle As Long
+    Dim xHandleStr As String
+    Dim xHandleLen As Long, xHandleStyle As Long
+    
+    On Error Resume Next
+    
+    Dim i As Long
+    
+    i = 0
+    xHandle = GetWindow(GetDesktopWindow(), GW_CHILD)
+    
+    Do While xHandle <> 0
+        xStr = String$(MAX_LEN - 1, 0)
+        xStrLen = GetWindowText(xHandle, xStr, MAX_LEN)
+        If xStrLen > 0 Then
+            xStr = Left$(xStr, xStrLen)
+            xHandleStyle = GetWindowLong(xHandle, GWL_STYLE)
+            If xHandleStyle And WS_VISIBLE Then
+'                ReDim Preserve DataArr(i)
+'                DataArr(i) = xStr
+                data.add xStr, CStr(xStr)
+'                i = i + 1
+            End If
+        End If
+        xHandle = GetWindow(xHandle, GW_HWNDNEXT)
+    Loop
+    
+    For i = 1 To data.Count
+
+        ReDim Preserve DataArr(i - 1)
+
+        DataArr(i - 1) = data.Item(i)
+
+    Next i
+    
+    GetAppNames = DataArr
+
+End Function
+
+Public Function CloseWindow(WindowName As String) As Long
+
+    Dim hwnd As Long
+    Dim result As Long
+    
+    hwnd = FindWindow(vbNullString, WindowName)
+    
+    result = SendMessage(hwnd, WM_CLOSE, 0, 0)
+    
+    CloseWindow = result
+    
+End Function
+
+Public Function ActivateWindow(WindowName As String) As Long
+
+    Dim hwnd As Long
+    Dim result As Long
+    
+    hwnd = FindWindow(vbNullString, WindowName)
+    
+    result = ShowWindow(hwnd, SW_RESTORE)
+    'result = SendMessage(hwnd, WM_ENABLE, 0, 0)
+    'result = SendMessage(hwnd, WM_SETFOCUS, 0, 0)
+    
+    ActivateWindow = result
+    
+End Function
+
+Public Function MinimizeWindow(WindowName As String) As Long
+    
+    Dim hwnd As Long
+    Dim result As Long
+    
+    hwnd = FindWindow(vbNullString, WindowName)
+    
+    result = ShowWindow(hwnd, SW_MINIMIZE)
+    
+    MinimizeWindow = result
+    
+End Function
+
+Public Function MaximizeWindow(WindowName As String) As Long
+
+    Dim hwnd As Long
+    Dim result As Long
+    
+    hwnd = FindWindow(vbNullString, WindowName)
+    
+    result = ShowWindow(hwnd, SW_MAXIMIZE)
+    
+    MaximizeWindow = result
+    
+End Function
+
+Public Property Get GetActiveWindowTitle()
+
+    Dim ActiveHWND As Long
+    Dim title As String
+    
+    ActiveHWND = GetForegroundWindow
+     
+    title = String(GetWindowTextLength(ActiveHWND) + 1, Chr$(0))     '
+    
+    GetWindowText ActiveHWND, title, Len(title)
+    
+    GetActiveWindowTitle = title
+    
+End Property
+
+Public Function ResizeWindow(WindowName As String, PositionX As Long, PositionY As Long, Width As Long, Height As Long) As Long
+    
+    Dim hwnd As Long
+    Dim result As Long
+    
+    hwnd = FindWindow(vbNullString, WindowName)
+    
+    result = MoveWindow(hwnd, PositionX, PositionY, Width, Height, 0)
+    
+    ResizeWindow = result
+    
+End Function
