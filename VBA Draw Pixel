@@ -1,0 +1,40 @@
+Option Explicit
+
+Private Declare PtrSafe Function GetPixel Lib "gdi32" (ByVal hdc As Long, ByVal x As Long, ByVal y As Long) As Long
+Private Declare PtrSafe Function GetCursorPos Lib "user32" (lpPoint As POINTAPI) As Long
+Private Declare PtrSafe Function GetWindowDC Lib "user32" (ByVal hwnd As Long) As Long
+Private Declare PtrSafe Function SetPixel Lib "gdi32.dll" (ByVal hdc As Long, ByVal x As Long, ByVal y As Long, ByVal crColor As Long) As Long
+
+Private Type POINTAPI
+    x As Long
+    y As Long
+End Type
+
+
+Public Sub Main()
+
+    Dim tPOS As POINTAPI
+    Dim sTmp As String
+    Dim lColor As Long
+    Dim lDC As Long
+    
+    lDC = GetWindowDC(0)
+    Call GetCursorPos(tPOS)
+    lColor = GetPixel(lDC, tPOS.x, tPOS.y)
+    
+    sTmp = Right$("000000" & Hex(lColor), 6)
+    Debug.Print "R:" & Right$(sTmp, 2) & " G:" & Mid$(sTmp, 3, 2) & " B:" & Left$(sTmp, 2)
+    
+    Dim i As Long, j As Long
+        
+    For i = 660 To 770
+        
+        For j = 177 To 250
+            Call SetPixel(lDC, j, i, lColor)
+        Next j
+    
+    Next i
+    
+    Stop
+ 
+End Sub
