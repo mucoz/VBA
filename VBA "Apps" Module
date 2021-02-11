@@ -24,23 +24,23 @@ Option Explicit
 
 '#Else
 
-Private Declare Function GetClassName Lib "user32" Alias "GetClassNameA" (ByVal hwnd As Long, ByVal lpClassName As String, ByVal nMaxCount As Long) As Long
+Private Declare Function GetClassName Lib "user32" Alias "GetClassNameA" (ByVal hWnd As Long, ByVal lpClassName As String, ByVal nMaxCount As Long) As Long
 Private Declare Function GetDesktopWindow Lib "user32" () As Long
-Private Declare Function GetWindow Lib "user32" (ByVal hwnd As Long, ByVal wCmd As Long) As Long
-Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long) As Long
-Private Declare Function GetWindowText Lib "user32" Alias "GetWindowTextA" (ByVal hwnd As Long, ByVal lpString As String, ByVal aint As Long) As Long
+Private Declare Function GetWindow Lib "user32" (ByVal hWnd As Long, ByVal wCmd As Long) As Long
+Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long) As Long
+Private Declare Function GetWindowText Lib "user32" Alias "GetWindowTextA" (ByVal hWnd As Long, ByVal lpString As String, ByVal aint As Long) As Long
 Private Declare Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
-Private Declare Function SendMessage Lib "user32" Alias "SendMessageA" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wParam As Long, lParam As Long) As Long
-Private Declare Function ShowWindow Lib "user32" (ByVal hwnd As Long, ByVal nCmdShow As Long) As Long
+Private Declare Function SendMessage Lib "user32" Alias "SendMessageA" (ByVal hWnd As Long, ByVal wMsg As Long, ByVal wParam As Long, lParam As Long) As Long
+Private Declare Function ShowWindow Lib "user32" (ByVal hWnd As Long, ByVal nCmdShow As Long) As Long
+Private Declare Function SetActiveWindow Lib "user32" (ByVal hWnd As Long) As Long
 Private Declare Function GetForegroundWindow Lib "user32" () As Long
-Private Declare Function SetForegroundWindow Lib "user32" (ByVal hwnd As Long) As Long
-Private Declare Function GetWindowTextLength Lib "user32" Alias "GetWindowTextLengthA" (ByVal hwnd As Long) As Long
+Private Declare Function SetForegroundWindow Lib "user32" (ByVal hWnd As Long) As Long
+Private Declare Function GetWindowTextLength Lib "user32" Alias "GetWindowTextLengthA" (ByVal hWnd As Long) As Long
 Public Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
-Private Declare Function MoveWindow Lib "user32" (ByVal hwnd As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal bRepaint As Long) As Long
-Private Declare Function ShellExecute Lib "shell32.dll" Alias "ShellExecuteA" (ByVal hwnd As Long, ByVal lpOperation As String, ByVal lpFile As String, ByVal lpParameters As String, ByVal lpDirectory As String, ByVal nShowCmd As Long) As Long
-Private Declare Function IsWindowVisible Lib "user32" (ByVal hwnd As Long) As Long
-Private Declare Function IsWindowEnabled Lib "user32" (ByVal hwnd As Long) As Long
-
+Private Declare Function MoveWindow Lib "user32" (ByVal hWnd As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal bRepaint As Long) As Long
+Private Declare Function ShellExecute Lib "shell32.dll" Alias "ShellExecuteA" (ByVal hWnd As Long, ByVal lpOperation As String, ByVal lpFile As String, ByVal lpParameters As String, ByVal lpDirectory As String, ByVal nShowCmd As Long) As Long
+Private Declare Function IsWindowVisible Lib "user32" (ByVal hWnd As Long) As Long
+Private Declare Function IsWindowEnabled Lib "user32" (ByVal hWnd As Long) As Long
 
 '#End If
 
@@ -77,6 +77,34 @@ Const SW_SHOWNA = 8
 Const SW_RESTORE = 9
 Const SW_SHOWDEFAULT = 10
 Const SW_MAX = 10
+
+Sub main()
+
+Sleep 3000
+Debug.Print Apps.IsActive("PaintLetter")
+
+End Sub
+
+
+Public Property Get GetActiveAppName() As String
+    
+    GetActiveAppName = GetAppNameWithHandle(GetForegroundWindow)
+    
+End Property
+
+Public Property Get GetActiveAppHandle() As Long
+
+    GetActiveAppHandle = GetForegroundWindow
+    
+End Property
+
+Public Property Get GetAppNameWithHandle(ByVal hWnd As Long) As String
+    
+    GetAppNameWithHandle = String(GetWindowTextLength(hWnd) + 1, Chr$(0))
+    
+    Call GetWindowText(hWnd, GetAppNameWithHandle, Len(GetAppNameWithHandle))
+    
+End Property
 
 Public Function GetAppNames() As Variant
     
@@ -123,14 +151,29 @@ Public Function GetAppNames() As Variant
 
 End Function
 
+Public Sub PrintAppNames()
+    
+    Dim appList As Variant
+    Dim i As Long
+    
+    appList = GetAppNames
+    
+    For i = LBound(appList) To UBound(appList)
+    
+        Debug.Print appList(i)
+        
+    Next i
+    
+End Sub
+
 Public Function CloseWindow(WindowName As String) As Long
 
-    Dim hwnd As Long
+    Dim hWnd As Long
     Dim result As Long
     
-    hwnd = FindWindow(vbNullString, WindowName)
+    hWnd = FindWindow(vbNullString, WindowName)
     
-    result = SendMessage(hwnd, WM_CLOSE, 0, 0)
+    result = SendMessage(hWnd, WM_CLOSE, 0, 0)
     
     CloseWindow = result
     
@@ -138,14 +181,12 @@ End Function
 
 Public Function ActivateWindow(WindowName As String) As Long
 
-    Dim hwnd As Long
+    Dim hWnd As Long
     Dim result As Long
     
-    hwnd = FindWindow(vbNullString, WindowName)
+    hWnd = FindWindow(vbNullString, WindowName)
     
-    result = ShowWindow(hwnd, SW_RESTORE)
-    'result = SendMessage(hwnd, WM_ENABLE, 0, 0)
-    'result = SendMessage(hwnd, WM_SETFOCUS, 0, 0)
+    result = SetForegroundWindow(hWnd)
     
     ActivateWindow = result
     
@@ -153,12 +194,12 @@ End Function
 
 Public Function MinimizeWindow(WindowName As String) As Long
     
-    Dim hwnd As Long
+    Dim hWnd As Long
     Dim result As Long
     
-    hwnd = FindWindow(vbNullString, WindowName)
+    hWnd = FindWindow(vbNullString, WindowName)
     
-    result = ShowWindow(hwnd, SW_MINIMIZE)
+    result = ShowWindow(hWnd, SW_MINIMIZE)
     
     MinimizeWindow = result
     
@@ -166,40 +207,25 @@ End Function
 
 Public Function MaximizeWindow(WindowName As String) As Long
 
-    Dim hwnd As Long
+    Dim hWnd As Long
     Dim result As Long
     
-    hwnd = FindWindow(vbNullString, WindowName)
+    hWnd = FindWindow(vbNullString, WindowName)
     
-    result = ShowWindow(hwnd, SW_MAXIMIZE)
+    result = ShowWindow(hWnd, SW_MAXIMIZE)
     
     MaximizeWindow = result
     
 End Function
 
-Public Property Get GetActiveWindowTitle()
-
-    Dim ActiveHWND As Long
-    Dim title As String
-    
-    ActiveHWND = GetForegroundWindow
-     
-    title = String(GetWindowTextLength(ActiveHWND) + 1, Chr$(0))     '
-    
-    GetWindowText ActiveHWND, title, Len(title)
-    
-    GetActiveWindowTitle = title
-    
-End Property
-
 Public Function ResizeWindow(WindowName As String, PositionX As Long, PositionY As Long, Width As Long, Height As Long) As Long
     
-    Dim hwnd As Long
+    Dim hWnd As Long
     Dim result As Long
     
-    hwnd = FindWindow(vbNullString, WindowName)
+    hWnd = FindWindow(vbNullString, WindowName)
     
-    result = MoveWindow(hwnd, PositionX, PositionY, Width, Height, 0)
+    result = MoveWindow(hWnd, PositionX, PositionY, Width, Height, 0)
     
     ResizeWindow = result
     
@@ -207,31 +233,75 @@ End Function
 
 Public Property Get GetHandle(WindowName As String) As Long
     
-    Dim hwnd As Long
+    Dim hWnd As Long
     
-    hwnd = FindWindow(vbNullString, WindowName)
+    hWnd = FindWindow(vbNullString, WindowName)
     
-    GetHandle = hwnd
+    GetHandle = hWnd
     
 End Property
 
-Public Property Get IsVisible(WindowNameOrHandle As Variant) As Boolean
+Public Property Get IsActive(WindowNameOrHandle As Variant) As Boolean
 
-    Dim hwnd As Long
+    Dim hWnd As Long
     Dim WindowName As String
     Dim status As Boolean
     
     If IsNumeric(WindowNameOrHandle) = True Then
     
-        hwnd = WindowNameOrHandle
-        status = IsWindowVisible(hwnd)
+        hWnd = WindowNameOrHandle
+        
+        If GetAppNameWithHandle(GetForegroundWindow) = GetAppNameWithHandle(hWnd) Then
+        
+            status = True
+            
+        Else
+         
+            status = False
+            
+        End If
+        
+        IsActive = status
+        
+    Else
+    
+        WindowName = WindowNameOrHandle
+        hWnd = FindWindow(vbNullString, WindowName)
+        
+        If GetAppNameWithHandle(GetForegroundWindow) = GetAppNameWithHandle(hWnd) Then
+        
+            status = True
+            
+        Else
+         
+            status = False
+            
+        End If
+        
+        IsActive = status
+        
+    End If
+
+
+
+End Property
+Public Property Get IsVisible(WindowNameOrHandle As Variant) As Boolean
+
+    Dim hWnd As Long
+    Dim WindowName As String
+    Dim status As Boolean
+    
+    If IsNumeric(WindowNameOrHandle) = True Then
+    
+        hWnd = WindowNameOrHandle
+        status = IsWindowVisible(hWnd)
         IsVisible = status
         
     Else
     
         WindowName = WindowNameOrHandle
-        hwnd = FindWindow(vbNullString, WindowName)
-        status = IsWindowVisible(hwnd)
+        hWnd = FindWindow(vbNullString, WindowName)
+        status = IsWindowVisible(hWnd)
         IsVisible = status
         
     End If
@@ -240,57 +310,79 @@ End Property
 
 Public Property Get IsOpen(WindowNameOrHandle As Variant) As Boolean
     
-    Dim hwnd As Long
+    Dim hWnd As Long
     Dim WindowName As String
     Dim status As Boolean
     
     If IsNumeric(WindowNameOrHandle) = True Then
     
-        hwnd = WindowNameOrHandle
-        status = IsWindowEnabled(hwnd)
+        hWnd = WindowNameOrHandle
+        status = IsWindowEnabled(hWnd)
         IsOpen = status
         
     Else
     
         WindowName = WindowNameOrHandle
-        hwnd = FindWindow(vbNullString, WindowName)
-        status = IsWindowEnabled(hwnd)
+        hWnd = FindWindow(vbNullString, WindowName)
+        status = IsWindowEnabled(hWnd)
         IsOpen = status
         
     End If
 
 End Property
 
+Public Function FindAppNameFromText(PartialName As String) As String
+    
+    Dim list As Variant
+    Dim i As Long
+    
+    list = GetAppNames
+    
+    For i = LBound(list) To UBound(list)
+        
+        If InStr(UCase(list(i)), UCase(PartialName)) > 0 Then
+            
+            FindAppNameFromText = list(i)
+            Exit Function
+        
+        End If
+        
+    Next i
+    
+    FindAppNameFromText = "Not Found"
+    
+End Function
+
 Public Function OpenApplication(WindowName As String, AppFullPath As String) As Long
     
     'Returns Application's Handle
     
-    Dim hwnd As Long
+    Dim hWnd As Long
     Dim result As Long
     
-    hwnd = FindWindow(vbNullString, WindowName)
+    hWnd = FindWindow(vbNullString, WindowName)
     
-    result = ShellExecute(hwnd, "open", AppFullPath, vbNullString, File.ParentFolder(AppFullPath), SW_NORMAL)
+    result = ShellExecute(hWnd, "open", AppFullPath, vbNullString, File.ParentFolder(AppFullPath), SW_NORMAL)
     
     If result = 2 Or result = 3 Then Exit Function
     
     Do
         DoEvents
-        hwnd = FindWindow(vbNullString, WindowName)
-    Loop Until hwnd > 0
+        hWnd = FindWindow(vbNullString, WindowName)
+    Loop Until hWnd > 0
     
-    OpenApplication = hwnd
+    OpenApplication = hWnd
     
 End Function
 
 Public Function Hide(WindowName As String) As Long
 
-    Dim hwnd As Long
+    Dim hWnd As Long
     Dim result As Long
     
-    hwnd = FindWindow(vbNullString, WindowName)
+    hWnd = FindWindow(vbNullString, WindowName)
     
-    result = ShowWindow(hwnd, SW_HIDE)
+    result = ShowWindow(hWnd, SW_HIDE)
     
     Hide = result
     
@@ -298,12 +390,12 @@ End Function
 
 Public Function Show(WindowName As String) As Long
     
-    Dim hwnd As Long
+    Dim hWnd As Long
     Dim result As Long
     
-    hwnd = FindWindow(vbNullString, WindowName)
+    hWnd = FindWindow(vbNullString, WindowName)
     
-    result = ShowWindow(hwnd, SW_SHOW)
+    result = ShowWindow(hWnd, SW_SHOW)
     
     Show = result
 
