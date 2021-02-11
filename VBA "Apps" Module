@@ -6,11 +6,11 @@ Option Explicit
 'It includes the most common functions
 'It needs to be used in "Window" module
 'Functions:
-'ActivateWindow, CloseWindow, MinimizeWindow, MaximizeWindow, MoveWindow, ResizeWindow, GetAppNames
+'ActivateWindow, CloseWindow, FindAppNameFromText, MinimizeWindow, MaximizeWindow, MoveWindow, ResizeWindow, GetAppNames
+'GetAppNames, Show, Hide, Sleep, PrintAppNames, OpenApplication
 'Properties:
-'GetActiveWindowTitle
+'GetActiveAppHandle, GetActiveAppName, GetAppNameWithHandle, GetHandle, IsActive, IsOpen, IsVisible,
 '===========================================
-
 
 
 '====API's to get application names=============
@@ -77,14 +77,6 @@ Const SW_SHOWNA = 8
 Const SW_RESTORE = 9
 Const SW_SHOWDEFAULT = 10
 Const SW_MAX = 10
-
-Sub main()
-
-Sleep 3000
-Debug.Print Apps.IsActive("PaintLetter")
-
-End Sub
-
 
 Public Property Get GetActiveAppName() As String
     
