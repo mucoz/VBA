@@ -234,3 +234,49 @@ Public Sub OpenZipFile(FilePath)
     Shell "Explorer.exe /e, " & FilePath, vbNormalFocus
     
 End Sub
+
+Private Function IsPath(Path As String) As Boolean
+    
+    If InStr(Path, "/") > 0 Or InStr(Path, "\") > 0 Then
+    
+        IsPath = True
+        
+    Else
+    
+        IsPath = False
+        
+    End If
+    
+End Function
+
+Public Sub CreateTXT(DataArray As Variant, FullPath As String)
+
+    Dim t As Object
+    Dim i As Long, j As Long
+    
+    
+    If IsPath(FullPath) = False Then
+        Debug.Print "CreateTXT error : Enter a valid path"
+        Exit Sub
+    End If
+    
+    Set t = FSO.CreateTextFile(FullPath, True)
+    
+    For i = LBound(DataArray, 1) To UBound(DataArray, 1)
+    
+        For j = LBound(DataArray, 2) To UBound(DataArray, 2)
+        
+            If j = UBound(DataArray, 2) Then
+                t.Write (DataArray(i, j))
+            Else
+                t.Write (DataArray(i, j) & "<:>")
+            End If
+            
+        Next j
+        
+        t.WriteLine ("")
+        
+    Next i
+    
+End Sub
+
