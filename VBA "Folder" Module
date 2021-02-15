@@ -122,6 +122,24 @@ Public Function Exist(ByVal FolderPath As String) As Boolean
     
 End Function
 
+Public Sub Move(ByVal SourcePath As String, DestinationPath As String)
+
+    If Exist(SourcePath) = False Then
+    
+        Debug.Print "Folder.Move error : source path doesn't exist"
+        Exit Sub
+        
+    ElseIf Exist(DestinationPath) = False Then
+    
+        Debug.Print "Folder.Move error : destination path doesn't exist"
+        Exit Sub
+        
+    End If
+    
+    FSO.MoveFolder SourcePath, DestinationPath + DetectSlash(DestinationPath)
+
+End Sub
+
 Public Sub Delete(Path As String)
     
     If Exist(Path) = True Then
