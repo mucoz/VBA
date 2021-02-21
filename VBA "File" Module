@@ -280,3 +280,11 @@ Public Sub CreateTXT(DataArray As Variant, FullPath As String)
     
 End Sub
 
+Public Sub LogTo(Path As String, Text As String)
+
+    Open Path For Append As #1
+        'Print #1, vbNewLine
+        Print #1, Text
+    Close #1
+    
+End Sub
