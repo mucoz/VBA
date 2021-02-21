@@ -1,0 +1,144 @@
+Option Explicit
+
+
+'OpenGetUsedRange
+
+
+Public Function XLConnectionString(Path As String) As String
+'https://www.connectionstrings.com/excel/
+    XLConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;" & _
+                         "Data Source=" & Path & ";" & _
+                         "Extended Properties=""Excel 12.0;IMEX=1" 'IMEX : Treat all data as text.Safer way to get data
+                    
+End Function
+
+Sub main()
+
+    Dim a As Variant
+    a = GetUsedRange("C:\Users\mcano\Desktop\ADO.xlsx")
+    Stop
+    WriteArray "C:\Users\mcano\Desktop\taslak.xlsx", a, , 2, 2
+    Stop
+    
+End Sub
+
+Public Sub WriteArray(WorkBookPath As String, DataArray As Variant, Optional SheetName As Variant, Optional InitialRow As Variant, Optional InitialColumn As Variant)
+    
+    Dim main As Workbook
+    Dim sheet As String
+    Dim r As Long, c As Long, cMemo As Long
+    Dim i As Long, j As Long
+    
+    If IsOpen(File.Name(WorkBookPath)) = True Then
+        Set main = GetObject(WorkBookPath)
+    Else
+        Set main = Workbooks.Open(WorkBookPath)
+    End If
+    
+    If IsMissing(InitialRow) = True Then
+        r = 1
+    Else
+        r = InitialRow
+    End If
+    
+    If IsMissing(InitialColumn) = True Then
+        c = 1
+    Else
+        c = InitialColumn
+    End If
+    
+    If IsMissing(SheetName) = True Then
+        sheet = "Sheet1"
+    Else
+        sheet = SheetName
+    End If
+    
+    cMemo = c
+    
+    For i = 1 To UBound(DataArray, 1)
+        c = cMemo
+        For j = 1 To UBound(DataArray, 2)
+            main.Sheets(sheet).Cells(r, c) = DataArray(i, j)
+            c = c + 1
+        Next j
+        r = r + 1
+    Next i
+End Sub
+
+Public Function GetUsedRange(Path As String, Optional SheetName As Variant, Optional IncludeHeaders As Boolean = True) As Variant
+    
+    Dim rs As Object 'Object 'ADODB.Recordset
+    Dim strConn As String
+    Dim strSQL As String
+    Dim data As Variant
+    
+    Set rs = CreateObject("ADODB.Recordset")        'CreateObject("ADODB.Recordset")    New ADODB.Recordset
+    
+    If IncludeHeaders = True Then
+        strConn = XLConnectionString(Path) + ";HDR=No"""
+    Else
+        strConn = XLConnectionString(Path) + ";HDR=Yes"""
+    End If
+    
+    If IsMissing(SheetName) = True Then
+        strSQL = "Select * from [Sheet1$]"
+    Else
+        strSQL = "Select * from [" & SheetName & "$]"
+    End If
+    
+    rs.Open strSQL, strConn, 3, 1   'adOpenStatic, adLockReadOnly -> 3  and  1
+    
+    data = rs.GetRows(, 1)
+
+    GetUsedRange = ConvertArray(data)
+    
+    Set rs = Nothing
+    
+End Function
+
+Private Function ConvertArray(DataArray As Variant) As Variant
+    
+    Dim i As Long, j As Long
+    Dim data() As Variant
+    Dim LastRow As Long, LastColumn As Long
+    
+    LastRow = UBound(DataArray, 2)
+    LastColumn = UBound(DataArray, 1)
+    
+    ReDim data(1 To LastRow + 1, 1 To LastColumn + 1)
+    
+    For i = 0 To LastRow
+        For j = 0 To LastColumn
+
+            If TypeName(DataArray(j, i)) = "Null" Then
+                data(i + 1, j + 1) = vbNullString
+            Else
+                data(i + 1, j + 1) = DataArray(j, i)
+            End If
+            
+        Next j
+    Next i
+    
+    ConvertArray = data
+    
+End Function
+
+Public Function IsOpen(WBName) As Boolean
+'For parameter, you need to enter only the name of the workbook, not the full path
+
+    Dim a As Workbook
+    On Error Resume Next
+    
+    Set a = Workbooks(WBName)
+    
+    If Err.Number = 0 Then
+        
+        IsOpen = True
+        
+    Else
+    
+        IsOpen = False
+        
+    End If
+
+End Function
