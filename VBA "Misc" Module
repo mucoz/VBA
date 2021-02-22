@@ -53,7 +53,7 @@ Public Function GetTextWithPattern(Text As String, Pattern As String) As String
 
 End Function
 
-Function ReplaceTextWithPattern(SearchPattern As String, TextToSearch As String, ReplaceWith As String, _
+Function ReplaceTextWithPattern(TextToSearch As String, SearchPattern As String, ReplaceWith As String, _
                       Optional GlobalReplace As Boolean = True, _
                       Optional IgnoreCase As Boolean = False, _
                       Optional MultiLine As Boolean = False) As String
