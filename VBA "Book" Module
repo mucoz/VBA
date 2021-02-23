@@ -13,14 +13,62 @@ Public Function XLConnectionString(Path As String) As String
 End Function
 
 Sub main()
-
-    Dim a As Variant
-    a = GetUsedRange("C:\Users\mcano\Desktop\ADO.xlsx")
-    Stop
-    WriteArray "C:\Users\mcano\Desktop\taslak.xlsx", a, , 2, 2
-    Stop
     
+    Dim a As Variant
+    Dim st As Double
+    
+    st = Timer
+    
+    a = GetUsedRange("C:\Users\moeztuerk\Desktop\Tax\Bot Requirements\680.14135 23500 VAT UK Dec-20.xlsb", "Daybook 680")
+    
+    WriteArray "C:\Users\moeztuerk\Desktop\deneme.xlsx", a, , 2, 2
+    
+    Debug.Print Format(Timer - st, "00.00")
+
+'    Stop
+
 End Sub
+
+Function OpenAndGetData(FilePath As String, Optional SheetName As Variant, Optional Password As Variant) As Variant
+    
+    Dim WBdata As Workbook
+    Dim WSdata As Worksheet
+    Dim status As Boolean
+    
+    If FilePath = "" Then
+        OpenAndGetData = Array("")
+        Exit Function
+    End If
+    
+    status = IsOpen(FilePath)
+    
+    FastMode
+    
+    'Set workbook with/without password
+    If IsMissing(Password) = True Then
+        Set WBdata = Workbooks.Open(FilePath, , True)
+    Else
+        Set WBdata = Workbooks.Open(FilePath, , True, , Password)
+    End If
+    
+    'Set worksheet with/without name
+    If IsMissing(SheetName) = True Then
+        Set WSdata = WBdata.Sheets(1)
+    Else
+        Set WSdata = WBdata.Sheets(SheetName)
+    End If
+    
+    OpenAndGetData = WSdata.UsedRange
+    
+    'If the workbook was not open at the beginning, close it
+    If status = False Then WBdata.Close
+    
+    Set WBdata = Nothing
+    Set WSdata = Nothing
+    
+    NormalMode
+
+End Function
 
 Public Sub WriteArray(WorkBookPath As String, DataArray As Variant, Optional SheetName As Variant, Optional InitialRow As Variant, Optional InitialColumn As Variant)
     
@@ -123,13 +171,17 @@ Private Function ConvertArray(DataArray As Variant) As Variant
     
 End Function
 
-Public Function IsOpen(WBName) As Boolean
+Public Function IsOpen(WBNameOrPath) As Boolean
 'For parameter, you need to enter only the name of the workbook, not the full path
 
     Dim a As Workbook
     On Error Resume Next
     
-    Set a = Workbooks(WBName)
+    If File.IsPath(WBNameOrPath) = False Then
+        Set a = Workbooks(WBNameOrPath)
+    Else
+        Set a = Workbooks(File.Name(WBNameOrPath))
+    End If
     
     If Err.Number = 0 Then
         
@@ -142,3 +194,26 @@ Public Function IsOpen(WBName) As Boolean
     End If
 
 End Function
+
+Private Sub FastMode()
+
+    With Application
+        .ScreenUpdating = False
+        .DisplayAlerts = False
+        .Calculation = xlCalculationManual
+        .EnableEvents = False
+    End With
+
+End Sub
+
+Private Sub NormalMode()
+    
+    With Application
+        .ScreenUpdating = True
+        .DisplayAlerts = True
+        .Calculation = xlCalculationAutomatic
+        .EnableEvents = True
+    End With
+
+End Sub
+
