@@ -235,7 +235,7 @@ Public Sub OpenZipFile(FilePath)
     
 End Sub
 
-Private Function IsPath(Path As String) As Boolean
+Public Function IsPath(Path As String) As Boolean
     
     If InStr(Path, "/") > 0 Or InStr(Path, "\") > 0 Then
     
