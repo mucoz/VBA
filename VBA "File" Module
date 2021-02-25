@@ -280,6 +280,48 @@ Public Sub CreateTXT(DataArray As Variant, FullPath As String)
     
 End Sub
 
+Public Sub ReadTXT(FullPath As String, ToSheet As Worksheet, Delimiter As String, Optional InitialRow As Variant, Optional InitialColumn As Variant)
+
+    Dim fs As Object
+    Dim textLine As String
+    Dim lineArr As Variant
+    Dim i As Long, j As Long, k As Long, m As Long
+    Dim row As Long, column As Long
+    
+    Set fs = FSO.OpenTextFile(FullPath, 1, 0) '1 is for reading, 0 is for ASCII (ForAppending, TristateFalse)
+    
+    If IsMissing(InitialRow) = True Then
+        row = 1
+    Else
+        row = InitialRow
+    End If
+    
+    If IsMissing(InitialColumn) = True Then
+        column = 1
+    Else
+        column = InitialColumn
+    End If
+    
+    Do While Not fs.AtEndOfStream
+
+        textLine = fs.readline
+        lineArr = Split(textLine, Delimiter)
+        j = UBound(lineArr) + 1
+        m = 0
+        For k = column To j + column - 1
+
+            ToSheet.Cells(row, k) = lineArr(m)
+            m = m + 1
+            
+        Next k
+        row = row + 1
+        
+    Loop
+    
+    fs.Close
+        
+End Sub
+
 Public Sub LogTo(Path As String, Text As String)
 
     Open Path For Append As #1
