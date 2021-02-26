@@ -280,13 +280,14 @@ Public Sub CreateTXT(DataArray As Variant, FullPath As String)
     
 End Sub
 
-Public Sub ReadTXT(FullPath As String, ToSheet As Worksheet, Delimiter As String, Optional InitialRow As Variant, Optional InitialColumn As Variant)
+Public Sub ReadTXT(FullPath As String, ToSheet As Worksheet, Delimiter As String, Optional IncludeHeader As Boolean = True, Optional InitialRow As Variant, Optional InitialColumn As Variant)
 
     Dim fs As Object
     Dim textLine As String
     Dim lineArr As Variant
     Dim i As Long, j As Long, k As Long, m As Long
     Dim row As Long, column As Long
+    Dim ignoreFirstLine As Boolean
     
     Set fs = FSO.OpenTextFile(FullPath, 1, 0) '1 is for reading, 0 is for ASCII (ForAppending, TristateFalse)
     
@@ -302,8 +303,20 @@ Public Sub ReadTXT(FullPath As String, ToSheet As Worksheet, Delimiter As String
         column = InitialColumn
     End If
     
+    
+    If IncludeHeader = True Then
+        ignoreFirstLine = False
+    Else
+        ignoreFirstLine = True
+    End If
+    
     Do While Not fs.AtEndOfStream
-
+                
+        If ignoreFirstLine = True Then
+            textLine = fs.readline
+            ignoreFirstLine = False
+        End If
+        
         textLine = fs.readline
         lineArr = Split(textLine, Delimiter)
         j = UBound(lineArr) + 1
