@@ -195,6 +195,65 @@ Public Function IsOpen(WBNameOrPath) As Boolean
 
 End Function
 
+Public Sub ExportCSV(CSVFileName, ExportRange As Range)
+    Dim ExpBook As Workbook
+    ' Exports a range to CSV file
+    If ExportRange Is Nothing Then
+    Debug.Print "Not ExportRange"
+    Exit Sub
+    End If
+    On Error GoTo ErrHandle
+    Application.ScreenUpdating = False
+    Set ExpBook = Workbooks.Add(xlWorksheet)
+    ExportRange.Copy
+    Application.DisplayAlerts = False
+    With ExpBook
+    .Sheets(1).Paste
+    .SaveAs Filename:=CSVFileName, FileFormat:=xlCSV
+    .Close SaveChanges:=False
+    End With
+    Application.CutCopyMode = False
+    Application.ScreenUpdating = True
+    Application.DisplayAlerts = True
+    Exit Sub
+ErrHandle:
+    ExpBook.Close SaveChanges:=False
+    Application.CutCopyMode = False
+    Application.ScreenUpdating = True
+    Application.DisplayAlerts = True
+    Debug.Print "Error " & Err & vbCrLf & vbCrLf & Error(Err), _
+    vbCritical, "Export Method Error"
+End Sub
+
+Public Sub ImportCSV(CSVFileName, ImportRange As Range)
+    Dim CSVFile As Workbook
+    ' Imports a CSV file to a range
+    If ImportRange Is Nothing Then
+    Debug.Print "Not ImportRange"
+    Exit Sub
+    End If
+    If CSVFileName = "" Then
+    Debug.Print "Import FileName not specified"
+    Exit Sub
+    End If
+    On Error GoTo ErrHandle
+    Application.ScreenUpdating = False
+    Application.DisplayAlerts = False
+    Workbooks.Open CSVFileName
+    Set CSVFile = ActiveWorkbook
+    ActiveSheet.UsedRange.Copy Destination:=ImportRange
+    CSVFile.Close SaveChanges:=False
+    Application.ScreenUpdating = True
+    Application.DisplayAlerts = True
+    Exit Sub
+ErrHandle:
+    CSVFile.Close SaveChanges:=False
+    Application.ScreenUpdating = True
+    Application.DisplayAlerts = True
+    Debug.Print "Error " & Err & vbCrLf & vbCrLf & Error(Err), _
+    vbCritical, "Import Method Error"
+End Sub
+
 Private Sub FastMode()
 
     With Application
