@@ -1,0 +1,31 @@
+Option Explicit
+
+Public Function OfArray(DataArray As Variant) As Long
+
+    OfArray = UBound(DataArray, 1)
+
+End Function
+
+Public Function Active() As Long
+
+    Active = Split(ActiveSheet.UsedRange.Address, "$")(4)
+    
+End Function
+
+Public Function UsedRange(Sheet As Worksheet) As Long
+
+    UsedRange = Split(Sheet.UsedRange.Address, "$")(4)
+
+End Function
+
+Public Function ColumnName(Sheet As Worksheet, ColumnnName As String) As Long
+
+    ColumnName = Sheet.Range(ColumnnName & Rows.Count).End(xlUp).Row
+    
+End Function
+
+Public Function ColumnNumber(Sheet As Worksheet, Number As Long) As Long
+
+    ColumnNumber = Sheet.Cells(Rows.Count, Number).End(xlUp).Row
+    
+End Function
