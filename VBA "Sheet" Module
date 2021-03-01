@@ -457,24 +457,6 @@ Public Sub ClearAllSheets(Optional WB As Variant)
 
 End Sub
 
-Public Function LRUsedRange(Sheet As Worksheet) As Long
-    
-    LRUsedRange = Sheet.UsedRange.row
-
-End Function
-
-Public Function LRwithColumn(Sheet As Worksheet, column As String) As Long
-
-    LRwithColumn = Sheet.Range(column & Rows.Count).End(xlUp).row
-    
-End Function
-
-Public Function LR(Sheet As Worksheet) As Long
-    
-    LR = Sheet.Cells(Rows.Count, 1).End(xlUp).row
-
-End Function
-
 Public Function SheetExists(WB As Workbook, SheetName As String) As Boolean
 
     Dim ws As Worksheet
