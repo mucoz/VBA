@@ -282,7 +282,7 @@ Public Sub CreateTXT(DataArray As Variant, FullPath As String)
 End Sub
 
 Public Sub ReadTXT(FullPath As String, ToSheet As Worksheet, Delimiter As String, Optional IncludeHeader As Boolean = True, Optional InitialRow As Variant, Optional InitialColumn As Variant)
-
+'FSO can read only ASCII, not UTF-8
     Dim fs As Object
     Dim textLine As String
     Dim lineArr As Variant
@@ -334,6 +334,56 @@ Public Sub ReadTXT(FullPath As String, ToSheet As Worksheet, Delimiter As String
     
     fs.Close
         
+End Sub
+
+Public Sub ReadTXTADO(FullPath As String, ToSheet As Worksheet, Delimiter As String, Optional IncludeHeader As Boolean = True)
+'ADO can read UTF-8
+    Dim objStream, strData As String
+
+    Set objStream = CreateObject("ADODB.Stream")
+    FastMode
+    objStream.Charset = "utf-8"
+    objStream.Open
+    objStream.LoadFromFile (FullPath)
+    
+    strData = objStream.ReadText()
+    
+    objStream.Close
+    'Import Text To cells
+    Dim i As Long, j As Long
+    Dim m As Long, n As Long
+    Dim k As Long, l As Long
+    Dim data As Variant, dataNew As Variant
+
+    data = Split(strData, vbNewLine)
+    
+    If IncludeHeader = True Then
+        i = LBound(data)
+    Else
+        i = LBound(data) + 1
+    End If
+    
+    j = UBound(data)
+
+    For k = i To j
+        
+        dataNew = Split(data(k), Delimiter)
+        m = LBound(dataNew)
+        n = UBound(dataNew)
+        
+        For l = m To n
+            ToSheet.Cells(k + 1, l + 1) = dataNew(l)
+        Next l
+    
+    Next k
+    
+    If IncludeHeader = False Then ToSheet.Range("A1").EntireRow.Delete
+    ToSheet.UsedRange.Columns.AutoFit
+    
+    NormalMode
+    
+    Set objStream = Nothing
+    
 End Sub
 
 Public Sub LogTo(Path As String, Text As String)
