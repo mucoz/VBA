@@ -1,0 +1,65 @@
+Option Explicit
+
+Public Sub WriteArray(Arr As Variant, Rng As Range)
+
+    Dim Destination As Range
+    Set Destination = Rng
+    Destination.Resize(UBound(Arr, 1), UBound(Arr, 2)).Value = Arr
+
+End Sub
+Public Function DeleteColumnValues(DataArray As Variant, ColumnNumber As Long, Value As Variant) As Variant
+
+    Dim Data() As Variant
+    Dim i As Long, j As Long
+    Dim m As Long, n As Long
+    Dim counter As Long
+    
+    If IsArray(DataArray) = False Then Exit Function
+    
+    For i = LBound(DataArray, 1) To UBound(DataArray, 1)
+    
+        If Trim(DataArray(i, ColumnNumber)) = Value Then
+            
+            counter = counter + 1
+        
+        End If
+    
+    Next i
+    
+    If counter = 0 Then
+    
+        Debug.Print "There is no """ & CStr(Value) & """ in the column " & CStr(ColumnNumber)
+        Exit Function
+    
+    Else
+    
+        ReDim Data(1 To UBound(DataArray, 1) - counter, 1 To UBound(DataArray, 2))
+        
+    End If
+    
+    m = 1
+    
+    For i = LBound(DataArray, 1) To UBound(DataArray, 1)
+        
+        n = 1
+        
+        For j = LBound(DataArray, 2) To UBound(DataArray, 2)
+        
+            If Trim(CStr(DataArray(i, ColumnNumber))) <> CStr(Value) Then
+            
+                Data(m, n) = DataArray(i, j)
+                n = n + 1
+            
+            End If
+            
+        Next j
+        
+        If Trim(CStr(DataArray(i, ColumnNumber))) <> CStr(Value) Then
+            m = m + 1
+        End If
+        
+    Next i
+    
+    DeleteColumnValues = Data
+    
+End Function
