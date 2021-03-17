@@ -63,3 +63,32 @@ Public Function DeleteColumnValues(DataArray As Variant, ColumnNumber As Long, V
     DeleteColumnValues = Data
     
 End Function
+
+Public Function LookUp(ByVal SearchItem As Variant, LookUpRange As Variant, FirstColumnNumber As Long, LastColumnNumber As Long) As Variant
+    
+    Dim i As Long
+    
+    For i = 1 To UBound(LookUpRange, 1)
+        
+        If IsNumeric(LookUpRange(i, FirstColumnNumber)) = True Then
+            
+            If SearchItem = Val(LookUpRange(i, FirstColumnNumber)) Then
+                LookUp = LookUpRange(i, LastColumnNumber)
+                Exit Function
+            End If
+        
+        Else
+            
+            If SearchItem = CStr(LookUpRange(i, FirstColumnNumber)) Then
+                LookUp = LookUpRange(i, LastColumnNumber)
+                Exit Function
+            End If
+        
+        End If
+    
+    Next i
+    
+    LookUp = "NOT FOUND"
+
+End Function
+
