@@ -102,6 +102,37 @@ Public Function LookUp(ByVal SearchItem As Variant, LookUpRange As Variant, Firs
 
 End Function
 
+Public Function LookUp2(ByVal FirstSearchItem As Variant, _
+                        ByVal SecondSearchItem As Variant, _
+                        ByRef LookUpRange As Variant, _
+                        FirstItemColumnNumber As Long, _
+                        SecondItemColumnNumber As Long, _
+                        GetDataFromColumnNumber) As Variant
+    
+    Dim i As Long
+    
+    If FirstSearchItem <> "" Or SecondSearchItem <> "" Then
+        
+        For i = 1 To UBound(LookUpRange, 1)
+            
+            If CStr(LookUpRange(i, FirstItemColumnNumber)) = CStr(FirstSearchItem) And CStr(LookUpRange(i, SecondItemColumnNumber)) = CStr(SecondSearchItem) Then
+                LookUp2 = LookUpRange(i, GetDataFromColumnNumber)
+                Exit Function
+            End If
+            
+        Next i
+        
+    Else
+        
+        LookUp2 = ""
+        Exit Function
+    
+    End If
+    
+    LookUp2 = ""
+
+End Function
+
 Public Sub Print2D(DataArray As Variant)
 
     Dim i As Long, j As Long
@@ -125,3 +156,23 @@ Public Sub Print1D(DataArray As Variant)
     Next i
     
 End Sub
+
+Public Function SumOfColumn(DataArray As Variant, ColumnNumber As Long) As Variant
+
+    Dim sum As Variant
+    Dim i As Long
+    
+    sum = 0
+    
+    For i = LBound(DataArray, 1) To UBound(DataArray, 1)
+    
+        If IsNumeric(DataArray(i, ColumnNumber)) = True Then
+            sum = sum + DataArray(i, ColumnNumber)
+        End If
+        
+    Next i
+    
+    SumOfColumn = sum
+    
+End Function
+
