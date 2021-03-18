@@ -4,7 +4,7 @@ Option Explicit
 '                            Created by Mustafa Can Ozturk on 18.03.2021                           '
 '                                                                                                  '
 '                       The functions below will be used for date operations                       '
-'                               It needs to be used in "Date" module                               '
+'                               It needs to be used in "DateTime" module                           '
 '                                                                                                  '
 '                Functions : FormatDateInArray, MonthToNumber, DateNow, NameOfMonth                '
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
