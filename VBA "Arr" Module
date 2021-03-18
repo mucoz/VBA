@@ -1,13 +1,23 @@
 Option Explicit
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'                            Created by Mustafa Can Ozturk on 18.03.2021                           '
+'                                                                                                  '
+'                      The functions below will be used for array operations                       '
+'                                It needs to be used in "Arr" module                               '
+'                                                                                                  '
+'               Functions : WriteArray, DeleteColumnValues, LookUp, Print2D, Print1D               '
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 Public Sub WriteArray(Arr As Variant, Rng As Range)
 
     Dim Destination As Range
     Set Destination = Rng
-    Destination.Resize(UBound(Arr, 1), UBound(Arr, 2)).Value = Arr
+    Destination.Resize(UBound(Arr, 1), UBound(Arr, 2)).value = Arr
 
 End Sub
-Public Function DeleteColumnValues(DataArray As Variant, ColumnNumber As Long, Value As Variant) As Variant
+
+Public Function DeleteColumnValues(DataArray As Variant, ColumnNumber As Long, value As Variant) As Variant
 
     Dim Data() As Variant
     Dim i As Long, j As Long
@@ -18,7 +28,7 @@ Public Function DeleteColumnValues(DataArray As Variant, ColumnNumber As Long, V
     
     For i = LBound(DataArray, 1) To UBound(DataArray, 1)
     
-        If Trim(DataArray(i, ColumnNumber)) = Value Then
+        If Trim(DataArray(i, ColumnNumber)) = value Then
             
             counter = counter + 1
         
@@ -28,7 +38,7 @@ Public Function DeleteColumnValues(DataArray As Variant, ColumnNumber As Long, V
     
     If counter = 0 Then
     
-        Debug.Print "There is no """ & CStr(Value) & """ in the column " & CStr(ColumnNumber)
+        Debug.Print "There is no """ & CStr(value) & """ in the column " & CStr(ColumnNumber)
         Exit Function
     
     Else
@@ -45,7 +55,7 @@ Public Function DeleteColumnValues(DataArray As Variant, ColumnNumber As Long, V
         
         For j = LBound(DataArray, 2) To UBound(DataArray, 2)
         
-            If Trim(CStr(DataArray(i, ColumnNumber))) <> CStr(Value) Then
+            If Trim(CStr(DataArray(i, ColumnNumber))) <> CStr(value) Then
             
                 Data(m, n) = DataArray(i, j)
                 n = n + 1
@@ -54,7 +64,7 @@ Public Function DeleteColumnValues(DataArray As Variant, ColumnNumber As Long, V
             
         Next j
         
-        If Trim(CStr(DataArray(i, ColumnNumber))) <> CStr(Value) Then
+        If Trim(CStr(DataArray(i, ColumnNumber))) <> CStr(value) Then
             m = m + 1
         End If
         
@@ -92,3 +102,26 @@ Public Function LookUp(ByVal SearchItem As Variant, LookUpRange As Variant, Firs
 
 End Function
 
+Public Sub Print2D(DataArray As Variant)
+
+    Dim i As Long, j As Long
+    Dim line As String
+    
+    For i = LBound(DataArray, 1) To UBound(DataArray, 1)
+        line = ""
+        For j = LBound(DataArray, 2) To UBound(DataArray, 2)
+            line = line + CStr(DataArray(i, j)) + "       "
+        Next j
+        Debug.Print line
+    Next i
+    
+End Sub
+
+Public Sub Print1D(DataArray As Variant)
+    
+    Dim i As Long
+    For i = LBound(DataArray, 1) To UBound(DataArray, 1)
+        Debug.Print CStr(DataArray(i))
+    Next i
+    
+End Sub
