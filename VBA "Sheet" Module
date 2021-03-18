@@ -7,7 +7,7 @@ Option Explicit
 
 'Functions:
 'GetUsedRange, FindHeader, ArrayLookUp, WriteArray, IsSheetEmpty, SheetExists, LR, LRWithColumn, LRUsedRange
-'StoreExcelData, DeletePart, GetRowsBetween, GetDataBetween, Clear, ClearAllSheets, CurrentMonthNameSpanish, MonthNameEnglish, FastMode, NormalMode
+'StoreExcelData, DeletePart, GetRowsBetween, GetDataBetween, Clear, ClearAllSheets, FastMode, NormalMode
 'MoveUsedRange, CopyUsedRange, GetUniqueItems
 '===========================================
 
@@ -335,76 +335,6 @@ Public Sub NormalMode()
     End With
 
 End Sub
-
-Public Function MonthNameEnglish(ByVal FullDate As Date) As String
-    
-    Dim MonthEnglish As String
-    
-    Select Case Val(Format(FullDate, "mm"))
-        Case 1:
-            MonthEnglish = "January"
-        Case 2:
-            MonthEnglish = "February"
-        Case 3:
-            MonthEnglish = "March"
-        Case 4:
-            MonthEnglish = "April"
-        Case 5:
-            MonthEnglish = "May"
-        Case 6:
-            MonthEnglish = "June"
-        Case 7:
-            MonthEnglish = "July"
-        Case 8:
-            MonthEnglish = "August"
-        Case 9:
-            MonthEnglish = "September"
-        Case 10:
-            MonthEnglish = "October"
-        Case 11:
-            MonthEnglish = "November"
-        Case 12:
-            MonthEnglish = "December"
-    End Select
-    
-    MonthNameEnglish = MonthEnglish
-
-End Function
-
-'Spanish month names
-Public Function CurrentMonthNameSpanish() As String
-    Dim Today As Date
-    
-    Today = Format(Now, "dd/mm/yyyy")
-    
-    Select Case Month(Today)
-        Case 1:
-            CurrentMonthNameSpanish = "Enero"
-        Case 2:
-            CurrentMonthNameSpanish = "Febrero"
-        Case 3:
-            CurrentMonthNameSpanish = "Marzo"
-        Case 4:
-            CurrentMonthNameSpanish = "Abril"
-        Case 5:
-            CurrentMonthNameSpanish = "Mayo"
-        Case 6:
-            CurrentMonthNameSpanish = "Junio"
-        Case 7:
-            CurrentMonthNameSpanish = "Julio"
-        Case 8:
-            CurrentMonthNameSpanish = "Agosto"
-        Case 9:
-            CurrentMonthNameSpanish = "Septiembre"
-        Case 10:
-            CurrentMonthNameSpanish = "Octubre"
-        Case 11:
-            CurrentMonthNameSpanish = "Noviembre"
-        Case 12:
-            CurrentMonthNameSpanish = "Diciembre"
-    End Select
-
-End Function
 
 Public Sub Clear(Optional Sheet As Variant)
     
