@@ -6,7 +6,7 @@ Option Explicit
 'It includes the most common functions
 'It needs to be used in "Misc" module
 'Functions:
-'Regular expressions (GetTextWithPattern, ReplaceTextWithPattern), Random,
+'Regular expressions (GetTextWithPattern, ReplaceTextWithPattern), Random, PrintFormLayout
 
 'For more info on Regular Expressions :
 'https://stackoverflow.com/questions/22542834/how-to-use-regular-expressions-regex-in-microsoft-excel-both-in-cell-and-loops
@@ -73,4 +73,16 @@ Function ReplaceTextWithPattern(TextToSearch As String, SearchPattern As String,
     
 End Function
 
-
+Public Sub PrintFormLayout(Form As UserForm)
+    
+    Dim c As Control
+    
+    For Each c In Form.Controls
+        Debug.Print c.Name & ".Left = " & c.Left
+        Debug.Print c.Name & ".Top = " & c.Top
+        Debug.Print c.Name & ".Height = " & c.Height
+        Debug.Print c.Name & ".Width = " & c.Width
+        
+    Next c
+    
+End Sub
