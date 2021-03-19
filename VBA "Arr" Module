@@ -176,3 +176,49 @@ Public Function SumOfColumn(DataArray As Variant, ColumnNumber As Long) As Varia
     
 End Function
 
+Public Function GetHeaderColumn(DataArray As Variant, HeaderText As String, Optional HeaderText2 As Variant) As Long
+    
+    Dim i As Long, j As Long
+    
+    If IsMissing(HeaderText2) = True Then
+        For i = LBound(DataArray, 1) To UBound(DataArray, 1)
+            For j = LBound(DataArray, 2) To UBound(DataArray, 2)
+                If InStr(UCase(CStr(DataArray(i, j))), UCase(CStr(Trim(HeaderText)))) > 0 Then
+                    GetHeaderColumn = j
+                    Exit Function
+                End If
+            Next j
+        Next i
+    Else
+        For i = LBound(DataArray, 1) To UBound(DataArray, 1)
+            For j = LBound(DataArray, 2) To UBound(DataArray, 2)
+                If InStr(UCase(CStr(DataArray(i, j))), UCase(CStr(Trim(HeaderText)))) > 0 And _
+                   InStr(UCase(CStr(DataArray(i, j))), UCase(CStr(Trim(HeaderText2)))) > 0 Then
+                    GetHeaderColumn = j
+                    Exit Function
+                End If
+            Next j
+        Next i
+    End If
+    
+    GetHeaderColumn = -1
+    
+End Function
+
+Public Function GetDimension(DataArray As Variant) As Integer
+    
+    Dim dimNumber As Integer
+    Dim result As Integer
+    
+    On Error Resume Next
+    
+    Do
+        dimNumber = dimNumber + 1
+        result = UBound(DataArray, dimNumber)
+    Loop Until Err.Number <> 0
+    
+    Err.Clear
+    
+    GetDimension = dimNumber - 1
+
+End Function
