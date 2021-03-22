@@ -6,7 +6,7 @@ Option Explicit
 'It includes the most common functions
 
 'Functions:
-'Copy, Rename, Exist, Create, Delete, ParentFolder, SubFolders, SubFilesNames, SubFilesPaths, GetAllSubFolders, CreateZipFile, UnzipFile
+'Copy, Rename, Exist, Create, Delete, ParentFolder, SubFolders, SubFilesNames, SubFilesPaths, GetAllSubFolders, CreateZipFile, UnzipFile, IsThereFile
 '===========================================
 
 'These fiels will be used for "SubFolders" function
