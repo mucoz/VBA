@@ -385,3 +385,37 @@ Private Function IsLike(text As String, pattern As String) As Boolean
     IsLike = text Like pattern
     
 End Function
+
+Public Function IsThereFile(FolderPath As String, SearchFileName As String) As Boolean
+    
+    Dim files As Variant
+    Dim search As Variant
+    Dim i As Long, j As Long
+    Dim m As Long
+    
+    files = SubFilesNames(FolderPath)
+    search = Split(SearchFileName, " ")
+    
+    For i = LBound(files) To UBound(files)
+    
+        m = LBound(search)
+        
+        For j = LBound(search) To UBound(search)
+            
+            If InStr(UCase(files(i)), UCase(search(j))) > 0 Then
+                m = m + 1
+            End If
+            
+        Next j
+        
+        If m = UBound(search) + 1 Then
+                
+                IsThereFile = True
+                Exit Function
+                
+        End If
+    Next i
+    
+    IsThereFile = False
+    
+End Function
