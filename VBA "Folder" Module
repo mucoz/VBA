@@ -207,7 +207,7 @@ Public Sub UnzipFile(SourceZipPath As Variant, UnzipToPath As Variant)
     
 End Sub
 
-Public Function SubFolders(MainPath As String) As Variant
+Public Function GetAllSubFolders(MainPath As String) As Variant
     
     Erase arr
     
@@ -217,7 +217,7 @@ Public Function SubFolders(MainPath As String) As Variant
     
     myArr = GetSubFolders(MainPath)
     
-    SubFolders = myArr
+    GetAllSubFolders = myArr
 
 End Function
 
