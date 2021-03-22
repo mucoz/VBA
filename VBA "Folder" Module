@@ -6,7 +6,7 @@ Option Explicit
 'It includes the most common functions
 
 'Functions:
-'Copy, Rename, Exist, Create, Delete, ParentFolder, SubFolders, SubFiles, CreateZipFile, UnzipFile
+'Copy, Rename, Exist, Create, Delete, ParentFolder, SubFolders, SubFiles, GetAllSubFolders, CreateZipFile, UnzipFile
 '===========================================
 
 'These fiels will be used for "SubFolders" function
@@ -251,6 +251,43 @@ Private Function GetSubFolders(RootPath As String) As Variant
     Next
     
     GetSubFolders = arr
+    
+    Set sf = Nothing
+    Set fld = Nothing
+    
+End Function
+
+Public Function SubFolders(MainPath As String) As Variant
+    
+    Dim fld As Object
+    Dim sf As Object
+    
+    Erase arr
+    
+    Counter = 0
+    
+    If Exist(MainPath) = False Then
+        
+        SubFolders = "INVALID PATH"
+        Exit Function
+        
+    End If
+    
+    Set fld = FSO.GetFolder(MainPath)
+    
+    For Each sf In fld.SubFolders
+        
+        ReDim Preserve arr(Counter)
+        
+        arr(Counter) = sf.Path
+        
+        Counter = Counter + 1
+        
+        DoEvents
+    
+    Next
+    
+    SubFolders = arr
     
     Set sf = Nothing
     Set fld = Nothing
