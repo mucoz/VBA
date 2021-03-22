@@ -293,3 +293,58 @@ Public Function SubFolders(MainPath As String) As Variant
     Set fld = Nothing
     
 End Function
+
+Public Function SubFoldersWithPattern(MainPath As String, pattern As String) As Variant
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'                                 ?        Any single character                                    '
+'                                 *        Zero or more characters                                 '
+'                                 #        Any single digit (0-9)                                  '
+'                        [charlist]        Any single character in charlist                        '
+'                       [!charlist]        Any single character not in charlist                    '
+'                                                                                                  '
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Dim fld As Object
+    Dim sf As Object
+    
+    Erase Arr
+    
+    Counter = 0
+    
+     If Exist(MainPath) = False Then
+        
+        SubFoldersWithPattern = "INVALID PATH"
+        Exit Function
+        
+    End If
+    
+    Set fld = FSO.GetFolder(MainPath)
+    
+    For Each sf In fld.SubFolders
+        
+        If IsLike(Folder.Name(sf.Path), pattern) = True Then
+        ReDim Preserve Arr(Counter)
+        
+        Arr(Counter) = sf.Path
+        
+        Counter = Counter + 1
+        
+        DoEvents
+        End If
+    Next
+    
+    If Counter = 0 Then
+    SubFoldersWithPattern = "No Folder in " & CStr(MainPath)
+    Else
+    SubFoldersWithPattern = Arr
+    End If
+    
+    Set sf = Nothing
+    Set fld = Nothing
+    
+End Function
+
+Private Function IsLike(text As String, pattern As String) As Boolean
+
+    IsLike = text Like pattern
+    
+End Function
