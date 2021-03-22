@@ -47,8 +47,8 @@ Public Property Get Name(FolderPath) As String
     
 End Property
 
-Public Function SubFiles(FolderPath As String) As Variant
-
+Public Function SubFilesNames(FolderPath As String) As Variant
+    
     Dim subFilesArr() As Variant
     Dim files As Object
     Dim file As Object
@@ -56,7 +56,7 @@ Public Function SubFiles(FolderPath As String) As Variant
     
     If Exist(FolderPath) = False Then
     
-        SubFiles = "PATH NOT FOUND"
+        SubFilesNames = "PATH NOT FOUND"
         Exit Function
     
     End If
@@ -65,7 +65,44 @@ Public Function SubFiles(FolderPath As String) As Variant
     
     If files.Count = 0 Then
     
-        SubFiles = "FILE NOT FOUND"
+        SubFilesNames = "FILE NOT FOUND"
+        Exit Function
+
+    End If
+    
+    i = 0
+    
+    For Each file In files
+        
+        ReDim Preserve subFilesArr(i)
+        subFilesArr(i) = file.Name
+        i = i + 1
+        
+    Next file
+    
+    SubFilesNames = subFilesArr
+    
+End Function
+
+Public Function SubFilesPaths(FolderPath As String) As Variant
+
+    Dim subFilesArr() As Variant
+    Dim files As Object
+    Dim file As Object
+    Dim i As Long
+    
+    If Exist(FolderPath) = False Then
+    
+        SubFilesPaths = "PATH NOT FOUND"
+        Exit Function
+    
+    End If
+    
+    Set files = FSO.GetFolder(FolderPath).files
+    
+    If files.Count = 0 Then
+    
+        SubFilesPaths = "FILE NOT FOUND"
         Exit Function
 
     End If
@@ -80,7 +117,7 @@ Public Function SubFiles(FolderPath As String) As Variant
         
     Next file
     
-    SubFiles = subFilesArr
+    SubFilesPaths = subFilesArr
     
 End Function
 
