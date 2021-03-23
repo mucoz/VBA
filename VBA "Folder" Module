@@ -386,14 +386,28 @@ Private Function IsLike(text As String, pattern As String) As Boolean
     
 End Function
 
-Public Function IsThereFile(FolderPath As String, SearchFileName As String) As Boolean
+Public Function FindFileName(FolderPath As String, SearchFileName As String) As String
+
+    Dim result As String
     
+    result = FindFilePath(FolderPath, SearchFileName)
+    
+    If result = "FILE NOT FOUND" Then
+        FindFileName = result
+    Else
+        FindFileName = file.Name(result)
+    End If
+
+End Function
+
+Public Function FindFilePath(FolderPath As String, SearchFileName As String) As String
+
     Dim files As Variant
     Dim search As Variant
     Dim i As Long, j As Long
     Dim m As Long
     
-    files = SubFilesNames(FolderPath)
+    files = SubFilesPaths(FolderPath)
     search = Split(SearchFileName, " ")
     
     For i = LBound(files) To UBound(files)
@@ -410,12 +424,31 @@ Public Function IsThereFile(FolderPath As String, SearchFileName As String) As B
         
         If m = UBound(search) + 1 Then
                 
-                IsThereFile = True
+                FindFilePath = files(j)
                 Exit Function
                 
         End If
+        
     Next i
     
-    IsThereFile = False
+    FindFilePath = "FILE NOT FOUND"
+    
+End Function
+
+Public Function IsThereFile(FolderPath As String, SearchFileName As String) As Boolean
+    
+    Dim filePath As String
+    
+    filePath = FindFilePath(FolderPath, SearchFileName)
+    
+    If filePath = "FILE NOT FOUND" Then
+        
+        IsThereFile = False
+    
+    Else
+    
+        IsThereFile = True
+        
+    End If
     
 End Function
