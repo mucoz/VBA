@@ -27,7 +27,7 @@ Public Property Get ParentFolder(Path As String) As String
     
 End Property
 
-Public Property Get Extension(Path As String) As String
+Public Property Get Extension(byval Path As String) As String
     
     If Exist(Path) = True Then
         
@@ -41,7 +41,7 @@ Public Property Get Extension(Path As String) As String
         
 End Property
 
-Public Function Exist(FilePath As String) As Boolean
+Public Function Exist(byval FilePath As String) As Boolean
 
     If FSO.fileexists(FilePath) = True Then
         
@@ -154,7 +154,7 @@ Public Sub Delete(Path As String)
     
 End Sub
 
-Public Property Get Name(Path As String) As String
+Public Property Get Name(byval Path As String) As String
     
     If Exist(Path) = True Then
     
@@ -236,7 +236,7 @@ Public Sub OpenZipFile(FilePath)
     
 End Sub
 
-Public Function IsPath(Path As String) As Boolean
+Public Function IsPath(byval Path As String) As Boolean
     
     If InStr(Path, "/") > 0 Or InStr(Path, "\") > 0 Then
     
