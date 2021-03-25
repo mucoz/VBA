@@ -18,14 +18,16 @@ Public Function UsedRange(Sheet As Worksheet) As Long
 
 End Function
 
-Public Function ColumnName(Sheet As Worksheet, ColumnnName As String) As Long
-
-    ColumnName = Sheet.Range(ColumnnName & Rows.Count).End(xlUp).Row
+Public Function LastRowOfColumn(Sheet As Worksheet, ColumnnNameOrNumber As Variant) As Long
     
-End Function
-
-Public Function ColumnNumber(Sheet As Worksheet, Number As Long) As Long
-
-    ColumnNumber = Sheet.Cells(Rows.Count, Number).End(xlUp).Row
+    If IsNumeric(ColumnnNameOrNumber) = True Then
+    
+        LastRowOfColumn = Sheet.Cells(Rows.Count, ColumnnNameOrNumber).End(xlUp).Row
+    
+    Else
+    
+        LastRowOfColumn = Sheet.Range(ColumnnNameOrNumber & Rows.Count).End(xlUp).Row
+    
+    End If
     
 End Function
