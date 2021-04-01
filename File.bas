@@ -7,13 +7,18 @@ Option Explicit
 'It needs to be used with "File" module
 'Functions:
 'Copy , Move, Delete, Exist, Rename, BuiltPath, ParentFolder, GetPath, GetPaths, OpenZipFile
-'CreateTXT, ReadTXT, LogTo, CreateLog
+'CreateTXT, ReadTXT, LogTo, CreateLog, TerminateLog, IsTXTOpen
 'Properties:
 'Name, Extension
 '===========================================
 
 
 '=======Auxiliary Functions=======
+
+Private ProcessDuration As Double
+
+
+
 Private Function FSO() As Object
     
     Set FSO = CreateObject("Scripting.FileSystemObject")
@@ -386,14 +391,45 @@ Public Sub ReadTXTADO(FullPath As String, ToSheet As Worksheet, Delimiter As Str
     
 End Sub
 
-Public Sub LogTo(Path As String, Text As String)
-
+Public Sub LogTo(ByVal Path As String, Text As String, Optional ErrorMessage As Boolean = False)
+    
+    Do
+    DoEvents
+    Loop Until IsTXTOpen(Path) = False
+    
     Open Path For Append As #1
-        'Print #1, vbNewLine
-        Print #1, Text
+        If ErrorMessage = True Then
+            Print #1, String(Len(CStr(Now) & "   ->   " & Text), "=")
+        End If
+        Print #1, CStr(Now) & "   ->   " & Text
+        If ErrorMessage = True Then
+            Print #1, String(Len(CStr(Now) & "   ->   " & Text), "=")
+        End If
+        Print #1, vbNewLine
     Close #1
     
 End Sub
+
+
+Public Function IsTXTOpen(ByVal FileName As String) As Boolean
+    Dim iFilenum As Long
+    Dim iErr As Long
+     
+    On Error Resume Next
+    iFilenum = FreeFile()
+    Open FileName For Input Lock Read As #iFilenum
+    Close iFilenum
+    iErr = Err
+    On Error GoTo 0
+     
+    Select Case iErr
+    Case 0:    IsTXTOpen = False
+    Case 70:   IsTXTOpen = True
+    Case Else: Error iErr
+    End Select
+     
+End Function
+
                 
 Public Sub CreateLog(FilePath As String)
     
@@ -401,4 +437,28 @@ Public Sub CreateLog(FilePath As String)
  
     Set f = FSO.CreateTextFile(FilePath, True)
     
+    StartTimer
+    
+    Set f = Nothing
+    
+    LogTo FilePath, UCase("Process has been started")
+    
 End Sub
+
+Private Sub StartTimer()
+
+    ProcessDuration = Timer
+    
+End Sub
+                    
+Public Sub TerminateLog(FilePath As String)
+
+    file.LogTo FilePath, UCase("Process has been completed in " & ProcessTime & " seconds.")
+    
+End Sub
+
+Private Function ProcessTime() As String
+    
+    ProcessTime = CStr(Format(Timer - ProcessDuration, "00.00"))
+    
+End Function
