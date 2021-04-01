@@ -7,7 +7,7 @@ Option Explicit
 'It needs to be used with "File" module
 'Functions:
 'Copy , Move, Delete, Exist, Rename, BuiltPath, ParentFolder, GetPath, GetPaths, OpenZipFile
-'CreateTXT, ReadTXT, LogTo
+'CreateTXT, ReadTXT, LogTo, CreateLog
 'Properties:
 'Name, Extension
 '===========================================
@@ -392,5 +392,13 @@ Public Sub LogTo(Path As String, Text As String)
         'Print #1, vbNewLine
         Print #1, Text
     Close #1
+    
+End Sub
+                
+Public Sub CreateLog(FilePath As String)
+    
+    Dim f As Object
+ 
+    Set f = FSO.CreateTextFile(FilePath, True)
     
 End Sub
