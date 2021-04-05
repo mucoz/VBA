@@ -224,6 +224,14 @@ Public Function GetDimension(DataArray As Variant) As Integer
 End Function
 
 
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'                An array with 100.000 elements was sorted in               '
+'               403,89 seconds by using Bubble Sort algorithm               '
+'                00,53 seconds by using Quick Sort algorithm                '
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
 Public Sub BubbleSort(ByRef DataArray As Variant)
     
     Dim first As Long, last As Long
@@ -304,3 +312,5 @@ Private Sub Swap(ByRef DataArray As Variant, first As Long, second As Long)
     DataArray(second) = temp
     
 End Sub
+
+'===============================END OF QUICK SORT============================
