@@ -243,3 +243,64 @@ Public Sub BubbleSort(ByRef DataArray As Variant)
     Next i
     
 End Sub
+
+Public Sub QuickSort(ByRef DataArray As Variant)
+
+    Dim l As Long, u As Long
+    Dim arr As Variant
+    
+    l = LBound(DataArray)
+    u = UBound(DataArray)
+    Call Util(DataArray, l, u)
+    
+End Sub
+
+Private Sub Util(ByRef DataArray As Variant, lower As Long, upper As Long)
+
+    If upper <= lower Then
+        Exit Sub
+    End If
+    
+    Dim pivot As Long, start As Long, finish As Long
+    
+    pivot = DataArray(lower)
+    start = lower
+    finish = upper
+    
+    Do While lower < upper
+        Do While (DataArray(lower) <= pivot And lower < upper)
+            
+            lower = lower + 1
+        
+        Loop
+    
+        Do While (DataArray(upper) > pivot And lower <= upper)
+        
+            upper = upper - 1
+            
+        Loop
+        
+        If lower < upper Then
+            
+            Swap DataArray, upper, lower
+        
+        End If
+    Loop
+    
+    Swap DataArray, upper, start
+    
+    Util DataArray, start, upper - 1
+    Util DataArray, upper + 1, finish
+    
+End Sub
+
+Private Sub Swap(ByRef DataArray As Variant, first As Long, second As Long)
+    
+    Dim temp As Long
+    
+    temp = DataArray(first)
+    
+    DataArray(first) = DataArray(second)
+    DataArray(second) = temp
+    
+End Sub
