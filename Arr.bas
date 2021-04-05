@@ -224,26 +224,22 @@ Public Function GetDimension(DataArray As Variant) As Integer
 End Function
 
 
-Public Function BubbleSort(DataArray As Variant) As Variant
+Public Sub BubbleSort(ByRef DataArray As Variant)
     
-    Dim arr As Variant
     Dim first As Long, last As Long
     Dim i As Long, j As Long, temp As Long
     
-    arr = DataArray
     first = LBound(DataArray)
     last = UBound(DataArray)
     
     For i = first To last - 1
         For j = i + 1 To last
-            If arr(i) > arr(j) Then
-                temp = arr(j)
-                arr(j) = arr(i)
-                arr(i) = temp
+            If DataArray(i) > DataArray(j) Then
+                temp = DataArray(j)
+                DataArray(j) = DataArray(i)
+                DataArray(i) = temp
             End If
         Next j
     Next i
     
-    BubbleSort = arr
-    
-End Function
+End Sub
