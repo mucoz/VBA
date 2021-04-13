@@ -6,7 +6,8 @@ Option Explicit
 '                      The functions below will be used for array operations                       '
 '                                It needs to be used in "Arr" module                               '
 '                                                                                                  '
-'       Functions : WriteArray, DeleteColumnValues, LookUp, Print2D, Print1D, BubbleSort            '
+'       Functions : WriteArray, DeleteColumnValues, LookUp, Print2D, Print1D, BubbleSort           '
+'           QuickSort,
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 Public Sub WriteArray(Arr As Variant, Rng As Range)
