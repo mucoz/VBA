@@ -7,8 +7,135 @@ Option Explicit
 '                                It needs to be used in "Arr" module                               '
 '                                                                                                  '
 '       Functions : WriteArray, DeleteColumnValues, LookUp, Print2D, Print1D, BubbleSort           '
-'           QuickSort,
+'           QuickSort, 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Enum ArrayValue
+    
+    Include
+    Exclude
+
+End Enum
+
+
+Public Function DeleteColumnValues(DataArray As Variant, ColumnNumber As Long, value As Variant, IncludeOrExclude As ArrayValue, Optional IsThereHeader As Boolean = True) As Variant
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'            This function deletes the rows of an array that contain a value in a column           '
+'                                                                                                  '
+'                        e.g.      Call DeleteColumnValues(Arr, 3, "Ipad")                         '
+'              Function will delete the 2nd row as it contains "Ipad" in 3rd column                '
+'                                          Column Numbers                                          '
+'                                                                                                  '
+'                    1     2         3         4    ->  1     2       3         4                  '
+'                    ----------------------------      ---------------------------                 '
+'                    1   Apple   Microsoft     20   ->  1   Apple  Microsoft    20                 '
+'                    2   Apple   Ipad          56   ->  3   Apple   Iphone      13                 '
+'                    3   Apple   Iphone        13   ->  4   Apple   Icar        34                 '
+'                    4   Apple   Icar          34   ->                                             '
+'                                                                                                  '
+'                                                                                                  '
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Dim data() As Variant
+    Dim i As Long, j As Long
+    Dim m As Long
+    Dim counter As Long
+    Dim increaseM As Boolean
+    
+    If IsArray(DataArray) = False Then
+    
+        DeleteColumnValues = "VALUE NOT FOUND"
+        Exit Function
+    
+    End If
+    
+    For i = LBound(DataArray, 1) To UBound(DataArray, 1)
+    
+        If UCase(Trim(DataArray(i, ColumnNumber))) = UCase(Trim(value)) Then
+            
+            counter = counter + 1
+            
+        End If
+    
+    Next i
+    
+    If counter = 0 Then
+        
+        If IncludeOrExclude = Exclude Then
+            DeleteColumnValues = DataArray 'Debug.Print "There is no """ & CStr(value) & """ in the column " & CStr(ColumnNumber)
+            Exit Function
+        Else
+            DeleteColumnValues = "VALUE NOT FOUND"
+            Exit Function
+        End If
+    
+    Else
+        If IncludeOrExclude = Exclude Then
+        
+            ReDim data(1 To UBound(DataArray, 1) - counter, 1 To UBound(DataArray, 2))
+            m = 1
+        
+        Else
+        
+            If IsThereHeader = True Then
+                
+                ReDim data(1 To counter + 1, 1 To UBound(DataArray, 2))
+                m = 2
+            
+            Else
+            
+                ReDim data(1 To counter, 1 To UBound(DataArray, 2))
+                m = 1
+                
+            End If
+        
+        End If
+        
+    End If
+
+    increaseM = False
+    
+    For i = m To UBound(DataArray, 1)
+        
+        For j = LBound(DataArray, 2) To UBound(DataArray, 2)
+        
+            If IncludeOrExclude = Include Then
+                If Trim(CStr(DataArray(i, ColumnNumber))) = CStr(value) Then
+                
+                    data(m, j) = DataArray(i, j)
+                    increaseM = True
+                
+                End If
+            Else
+                If Trim(CStr(DataArray(i, ColumnNumber))) <> CStr(value) Then
+                
+                    data(m, j) = DataArray(i, j)
+                    increaseM = True
+                
+                End If
+            End If
+            
+        Next j
+        
+        If increaseM = True Then
+            m = m + 1
+            increaseM = False
+        End If
+        
+    Next i
+    
+    'if there is header, fill it
+    If IsThereHeader = True Then
+        For i = LBound(DataArray, 2) To UBound(DataArray, 2)
+            
+            data(1, i) = DataArray(1, i)
+        
+        Next i
+    End If
+    
+    DeleteColumnValues = data
+    
+End Function
 
 Public Sub WriteArray(Arr As Variant, Rng As Range)
 
@@ -18,63 +145,45 @@ Public Sub WriteArray(Arr As Variant, Rng As Range)
 
 End Sub
 
-Public Function DeleteColumnValues(DataArray As Variant, ColumnNumber As Long, value As Variant) As Variant
+Public Function ClearHeaders(DataArray As Variant) As Variant
 
-    Dim Data() As Variant
     Dim i As Long, j As Long
-    Dim m As Long, n As Long
-    Dim counter As Long
+    Dim data() As Variant
+    Dim lower As Long, upper As Long
+    Dim m As Long
     
-    If IsArray(DataArray) = False Then Exit Function
-    
-    For i = LBound(DataArray, 1) To UBound(DataArray, 1)
-    
-        If Trim(DataArray(i, ColumnNumber)) = value Then
-            
-            counter = counter + 1
-        
-        End If
-    
-    Next i
-    
-    If counter = 0 Then
-    
-        Debug.Print "There is no """ & CStr(value) & """ in the column " & CStr(ColumnNumber)
+    If IsArray(DataArray) = False Then
+        'If it s not an array, return the same array
+        ClearHeaders = DataArray
         Exit Function
-    
-    Else
-    
-        ReDim Data(1 To UBound(DataArray, 1) - counter, 1 To UBound(DataArray, 2))
-        
     End If
     
-    m = 1
+    lower = LBound(DataArray, 1)
+    upper = UBound(DataArray, 1)
     
-    For i = LBound(DataArray, 1) To UBound(DataArray, 1)
-        
-        n = 1
-        
+    If upper <= 1 Then
+        'If there is only one row, return the same array
+        ClearHeaders = DataArray
+        Exit Function
+    End If
+    
+    ReDim data(lower To upper - 1, LBound(DataArray, 2) To UBound(DataArray, 2))
+    
+    m = 1
+
+    For i = lower + 1 To upper
         For j = LBound(DataArray, 2) To UBound(DataArray, 2)
         
-            If Trim(CStr(DataArray(i, ColumnNumber))) <> CStr(value) Then
-            
-                Data(m, n) = DataArray(i, j)
-                n = n + 1
-            
-            End If
+            data(m, j) = DataArray(i, j)
             
         Next j
-        
-        If Trim(CStr(DataArray(i, ColumnNumber))) <> CStr(value) Then
-            m = m + 1
-        End If
-        
+        m = m + 1
     Next i
     
-    DeleteColumnValues = Data
+    ClearHeaders = data
     
 End Function
-
+    
 Public Function LookUp(ByVal SearchItem As Variant, LookUpRange As Variant, FirstColumnNumber As Long, LastColumnNumber As Long) As Variant
     
     Dim i As Long
@@ -133,7 +242,33 @@ Public Function LookUp2(ByVal FirstSearchItem As Variant, _
     LookUp2 = ""
 
 End Function
+        
+Public Function FindTextInColumn(arr As Variant, ColumnnNameOrNumber As Variant, Text As Variant) As String
 
+    Dim i As Long
+    Dim colN As Long
+    
+    If IsNumeric(ColumnnNameOrNumber) = True Then
+        colN = ColumnnNameOrNumber
+    Else
+        colN = Range(ColumnnNameOrNumber & 1).Column
+    End If
+    
+    For i = LBound(arr) To UBound(arr)
+        
+        If InStr(UCase(arr(i, colN)), UCase(Text)) > 0 Then
+            
+            FindTextInColumn = arr(i, colN)
+            Exit Function
+        
+        End If
+    
+    Next i
+    
+    FindTextInColumn = "VALUE NOT FOUND"    '""
+    
+End Function        
+        
 Public Sub Print2D(DataArray As Variant)
 
     Dim i As Long, j As Long
