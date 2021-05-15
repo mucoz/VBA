@@ -7,7 +7,7 @@ Option Explicit
 'It needs to be used with "File" module
 'Functions:
 'Copy , Move, Delete, Exist, Rename, BuiltPath, ParentFolder, GetPath, GetPaths, OpenZipFile
-'CreateTXT, ReadTXT, LogTo, CreateLog, TerminateLog, IsTXTOpen
+'CreateTXT, ReadTXT, LogTo, CreateLog, TerminateLog, IsTXTOpen, IdenticalFiles
 'Properties:
 'Name, Extension
 '===========================================
@@ -461,4 +461,47 @@ Private Function ProcessTime() As String
     
     ProcessTime = CStr(Format(Timer - ProcessDuration, "00.00"))
     
+End Function
+                    
+Public Function IdenticalFiles(strFilename1 As String, strFilename2 As String) As Boolean
+
+    Dim byt1() As Byte
+    Dim byt2() As Byte
+    Dim f1 As Integer
+    Dim f2 As Integer
+    Dim lngFileLen1 As Long
+    Dim lngFileLen2 As Long
+    Dim i As Long
+
+    'Test to see if we have actually been passed 2 filenames
+    If LenB(strFilename1) = 0 Or LenB(strFilename2) = 0 Then Exit Function
+    'Test to see if the first file exists
+    If LenB(Dir(strFilename1)) = 0 Then Exit Function
+    'Test to see if the second file exists
+    If LenB(Dir(strFilename2)) = 0 Then Exit Function
+
+    'OK now start looking at the file contents
+    f1 = FreeFile
+    Open strFilename1 For Binary Access Read As #f1
+    f2 = FreeFile
+    Open strFilename2 For Binary Access Read As #f2
+    lngFileLen1 = LOF(f1)
+    lngFileLen2 = LOF(f2)
+    If lngFileLen1 = lngFileLen2 Then
+      'Continue - there is a possibility they are the same
+      ReDim byt1(1 To lngFileLen1) As Byte
+      ReDim byt2(1 To lngFileLen2) As Byte
+      Get #f1, , byt1
+      Get #f2, , byt2
+      For i = 1 To lngFileLen1
+        If byt1(i) <> byt2(i) Then GoTo IdenticalFiles_Exit 'The 2 files are not the same
+      Next
+      'We got this far so the 2 files must be the same
+      IdenticalFiles = True
+    End If
+
+    IdenticalFiles_Exit:
+    Close #f1
+    Close #f2
+
 End Function
