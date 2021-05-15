@@ -8,7 +8,7 @@ Option Explicit
 'Functions:
 'GetUsedRange, FindHeader, ArrayLookUp, WriteArray, IsSheetEmpty, SheetExists, LR, LRWithColumn, LRUsedRange
 'StoreExcelData, DeletePart, GetRowsBetween, GetDataBetween, Clear, ClearAllSheets, FastMode, NormalMode
-'MoveUsedRange, CopyUsedRange, GetUniqueItems
+'MoveUsedRange, CopyUsedRange, GetUniqueItems, DeleteEmptyColumns, IsColumnEmpty, AreRangesSame, FindValueRow(Returns row number)
 '===========================================
 
 Type Header
@@ -492,3 +492,113 @@ Public Function FindHeader(LookUpRange As Variant, Text As String, Optional Exac
     FindHeader.row = -1
     
 End Function
+                        
+Public Sub DeleteEmptyColumns(Rng As Range)
+
+    Dim i As Long
+    Dim j As Long
+    
+    
+    For j = Rng.Columns(1).Column To Rng.Columns.Count
+        
+        For i = Rng.Rows(1).Row To Rng.Rows.Count
+        
+            If Trim(Rng.Parent.Cells(i, j)) <> "" Then
+            
+                GoTo nextJ
+                
+            End If
+            
+        Next i
+        
+        Rng.Parent.Columns(j).EntireColumn.Delete
+nextJ:
+    Next j
+
+End Sub
+
+Public Function IsColumnEmpty(Sheet As Worksheet, ColumnNameOrNumber As String) As Boolean
+
+    Dim i As Long
+    Dim lr As Long
+    
+    
+    If IsNumeric(ColumnNameOrNumber) = False Then
+        lr = Sheet.Range(ColumnNameOrNumber & Rows.Count).End(xlUp).Row
+    Else
+        lr = Sheet.Cells(Rows.Count, ColumnNameOrNumber).End(xlUp).Row
+    End If
+    
+    IsColumnEmpty = True
+    
+    For i = 1 To lr
+    
+        If Trim(Sheet.Range(ColumnNameOrNumber & i)) <> vbNullString Then
+        
+            IsColumnEmpty = False
+            Exit Function
+        End If
+    
+    Next i
+
+End Function
+
+Public Function AreRangesSame(Rng1 As Range, Rng2 As Range) As Boolean
+
+    Dim r1 As Long, c1 As Long, r2 As Long, c2 As Long
+    
+    r1 = Rng1.Rows.Count
+    c1 = Rng1.Columns.Count
+    
+    r2 = Rng2.Rows.Count
+    c2 = Rng2.Columns.Count
+    
+    If Rng1 Is Nothing Then Debug.Print "First Range is not set": Exit Function
+    If Rng2 Is Nothing Then Debug.Print "Second Range is not set": Exit Function
+    
+    If r1 <> r2 And c1 <> c2 Then
+    
+        AreRangesSame = False
+        Exit Function
+        
+    End If
+    
+    Dim i As Long, j As Long
+    Dim counter As Long
+    counter = 0
+    For i = 1 To r1
+        For j = 1 To c1
+            If Rng1(i, j) = Rng2(i, j) Then
+                counter = counter + 1
+            End If
+        Next j
+    Next i
+    
+    If counter = r1 * c1 Then
+        AreRangesSame = True
+    Else
+        AreRangesSame = False
+    End If
+
+End Function
+            
+Public Function FindValueRow(Sheet As Worksheet, Value As String) As Long
+    Dim FindString As String
+    Dim Rng As Range
+    FindString = Value
+    If Trim(FindString) <> "" Then
+        With Sheet.Range("A:Z")
+            Set Rng = .Find(What:=FindString, _
+                            After:=.Cells(.Cells.Count), _
+                            LookIn:=xlValues, _
+                            LookAt:=xlWhole, _
+                            SearchOrder:=xlByRows, _
+                            SearchDirection:=xlNext, _
+                            MatchCase:=False)
+            If Not Rng Is Nothing Then
+                FindValueRow = Rng.Row
+            End If
+        End With
+    End If
+End Function
+
