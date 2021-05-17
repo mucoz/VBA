@@ -6,7 +6,7 @@ Option Explicit
 'It includes the most common functions
 'It needs to be used in "Misc" module
 'Functions:
-'Regular expressions (GetTextWithPattern, ReplaceTextWithPattern), Random, PrintFormLayout
+'Regular expressions (GetTextWithPattern, ReplaceTextWithPattern), Random, PrintFormLayout, GetTextFromClipBoard
 
 'For more info on Regular Expressions :
 'https://stackoverflow.com/questions/22542834/how-to-use-regular-expressions-regex-in-microsoft-excel-both-in-cell-and-loops
@@ -71,6 +71,19 @@ Function ReplaceTextWithPattern(TextToSearch As String, SearchPattern As String,
 
     ReplaceTextWithPattern = RE.Replace(TextToSearch, ReplaceWith)
     
+End Function
+
+Public Function GetTextFromClipBoard() As String
+    
+
+    Dim objData As New DataObject
+    Dim strText
+
+       objData.GetFromClipboard
+       strText = objData.GetText
+
+       GetTextFromClipBoard = strText
+
 End Function
 
 Public Sub PrintFormLayout(Form As UserForm)
