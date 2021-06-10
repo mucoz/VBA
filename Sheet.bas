@@ -9,6 +9,7 @@ Option Explicit
 'GetUsedRange, FindHeader, ArrayLookUp, WriteArray, IsSheetEmpty, SheetExists, LR, LRWithColumn, LRUsedRange
 'StoreExcelData, DeletePart, GetRowsBetween, GetDataBetween, Clear, ClearAllSheets, FastMode, NormalMode
 'MoveUsedRange, CopyUsedRange, GetUniqueItems, DeleteEmptyColumns, IsColumnEmpty, AreRangesSame, FindValueRow(Returns row number)
+'Fit, Fit2(fits wrapped cells)
 '===========================================
 
 Type Header
@@ -563,6 +564,7 @@ Public Function AreRangesSame(Rng1 As Range, Rng2 As Range) As Boolean
         
     End If
     
+                                        
     Dim i As Long, j As Long
     Dim counter As Long
     counter = 0
@@ -602,3 +604,23 @@ Public Function FindValueRow(Sheet As Worksheet, Value As String) As Long
     End If
 End Function
 
+Public Sub Fit(Sheet As Worksheet)
+
+    Sheet.UsedRange.Columns.AutoFit
+    
+End Sub
+
+Public Sub Fit2(Sheet As Worksheet)
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'                                                                                                  '
+'                    When there are wrapped cells in a sheet, use this function.                   '
+'                  It expands the cells first and after that applies fit function                  '
+'                                                                                                  '
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ws.UsedRange.EntireColumn.ColumnWidth = 50
+    ws.UsedRange.EntireRow.RowHeight = 400
+    
+    ws.UsedRange.Columns.EntireColumn.AutoFit
+    ws.UsedRange.Rows.EntireRow.AutoFit
+
+End Sub
