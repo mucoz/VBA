@@ -452,3 +452,53 @@ Public Function IsThereFile(FolderPath As String, SearchFileName As String) As B
     End If
     
 End Function
+                                                                            
+Public Function GetFolderPath()
+
+Dim fd As FileDialog
+
+Set fd = Application.FileDialog(msoFileDialogFolderPicker)
+
+With fd
+    .AllowMultiSelect = False
+    .ButtonName = "Select"
+    .Title = "Choose Folder"
+    
+    If .Show = -1 Then
+        GetFolderPath = .SelectedItems(1)
+    Else
+        GetFolderPath = ""
+    End If
+    
+End With
+
+End Function
+
+Public Function GetFolderName(FolderPath As String)
+ 
+    If Len(FolderPath) = 0 Or InStr(FolderPath, "\") = 0 Then
+        MsgBox "Choose a valid folder", vbInformation + vbOKOnly, "Warning"
+        GetFolderName = ""
+        Exit Function
+    End If
+    
+    Dim i As Integer
+    Dim result As String
+    Dim chr As String * 1
+    
+    Do
+        chr = Mid(FolderPath, Len(FolderPath) - i, 1)
+        If chr <> "\" Then
+            result = chr + result
+        Else
+            Exit Do
+        End If
+        i = i + 1
+    
+    Loop
+    
+    GetFolderName = result
+ 
+End Function
+    
+
