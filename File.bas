@@ -203,7 +203,28 @@ Public Function GetPath(FileDescription As String, FileExtension As String, Wind
     End With
 
 End Function
+                            
+Public Function GetFolderPath(Title As String)
 
+Dim fd As FileDialog
+
+Set fd = Application.FileDialog(msoFileDialogFolderPicker)
+
+With fd
+    .AllowMultiSelect = False
+    .ButtonName = "Select"
+    .Title = Title
+    
+    If .Show = -1 Then
+        GetFolderPath = .SelectedItems(1)
+    Else
+        GetFolderPath = ""
+    End If
+    
+End With
+
+End Function
+                                
 Public Function GetPaths(FileDescription As String, FileExtension As String, WindowHeader As String) As Variant
     
     Dim fd As FileDialog
