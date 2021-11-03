@@ -7,7 +7,7 @@ Option Explicit
 'It needs to be used with "File" module
 'Functions:
 'Copy , Move, Delete, Exist, Rename, BuiltPath, ParentFolder, GetPath, GetPaths, OpenZipFile
-'CreateTXT, ReadTXT, LogTo, CreateLog, TerminateLog, IsTXTOpen, IdenticalFiles
+'CreateTXT, ReadTXT, LogTo, CreateLog, TerminateLog, IsTXTOpen, IdenticalFiles, GetFolderPath
 'Properties:
 'Name, Extension
 '===========================================
