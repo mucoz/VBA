@@ -1,4 +1,5 @@
-'File module
+'File Module===============================================================================================================================
+
 Option Explicit
 
 Enum LogStatus
@@ -59,7 +60,7 @@ Public Sub LogTo(ByVal Path As String, Text As String, Optional Status As LogSta
             message = Text & " process has been started."
         ElseIf Status = Finish Then
             message = Text & " has been completed successfully" & " in " & CStr(Format(Timer - LastTime, "00.00")) & " seconds."
-        ElseIf Status = Blank Then
+        ElseIf Status = Blank Or Fail Then
             message = Text
         End If
         
@@ -126,7 +127,8 @@ Private Sub StartTimer()
     
 End Sub
 
-'Globals Module
+'Globals Module===============================================================================================================================
+
 Option Explicit
 
 'This is the path of the Log File which will be used during runtime
@@ -142,7 +144,8 @@ Public Function UserName() As String
     
 End Function
 
-'Main Module
+'Main Module===============================================================================================================================
+
 Option Explicit
 
 'Entry Point
@@ -164,60 +167,70 @@ Sub RunMacro()
     
 ErrorHandler:
     
-    If Err.Number <> 0 Then
-        File.LogTo LogFile, "ERROR : " & UCase(Err.Description), Fail
+    Call HandleError(Err)
+
+End Sub
+
+Sub HandleError(error As ErrObject)
+
+    If error.Number <> 0 Then
+        File.LogTo LogFile, "ERROR : " & UCase(error.Description), Fail
         Call File.TerminateLog(LogFile)
         MsgBox "Something went wrong. Please check the log file.", vbCritical + vbOKOnly, "Prompt"
         On Error GoTo -1
         Exit Sub
     End If
-        
+    
     Call File.TerminateLog(LogFile)
     
     MsgBox "Macro finished processing successfully.", vbInformation + vbOKOnly, "Prompt"
-
     Debug.Print "finished"
-    
     
 End Sub
 
 Sub Task1()
     File.LogTo LogFile, "Task1", Start
+    
     Dim i As Long
     
     
-    For i = 0 To 1000000000
+    For i = 0 To 10000000
     
         i = i + 1
     
     Next i
+    
     File.LogTo LogFile, "Task1", Finish
 End Sub
 
 Sub Task2()
     File.LogTo LogFile, "Task2", Start
+    
     Dim i As Long
     
     
-    For i = 0 To 100000000
+    For i = 0 To 10000000
     
         i = i + 1
     
     Next i
     
     'Err.Raise 9
+    
     File.LogTo LogFile, "Task2", Finish
 End Sub
 
 Sub Task3()
     File.LogTo LogFile, "Task3", Start
+    
     Dim i As Long
     
     
-    For i = 0 To 1000000000
+    For i = 0 To 10000000
     
         i = i + 1
     
     Next i
+    
     File.LogTo LogFile, "Task3", Finish
 End Sub
