@@ -1,3 +1,20 @@
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'      Author  : Mustafa Can Öztürk                                        '
+'      Purpose : It reads, updates, deletes, adds item in config file      '
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'ADD CODE TO THE UTILS MODULE
+'Private m_config As Configurator
+
+'Public Function Config() As Configurator
+'    If m_config Is Nothing Then
+'        Set m_config = New Configurator
+'    End If
+'    Set Config = m_config
+'End Function
+
+
+'ADD CODE TO THE CONFIGURATOR CLASS
 Option Explicit
 
 Private Const CONFIG_DELIMITER As String = "="
