@@ -59,7 +59,7 @@ On Error GoTo error_handler
     If g_errorOccurred = True Then
         Exit Sub
     End If
-    If ThisWorkbook.Path = "" And m_logFolderPath = "" Then
+    If ThisWorkbook.Path = "" Then
         Call MsgBox("Path of the workbook is undefined." + vbNewLine + "Set folder path or save the workbook first!", vbCritical, "Logger Error")
         g_errorOccurred = True
         Exit Sub
