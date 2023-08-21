@@ -1,5 +1,5 @@
 Option Explicit
-
+'TODO : Where, Sort, Filter, GetFirst, Paginate, GetRecords(All or SelectedColumns)
 Private m_conn As ADODB.Connection
 Private m_dbPath As String
 
