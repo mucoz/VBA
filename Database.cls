@@ -1,122 +1,107 @@
 Option Explicit
 
-Private conn As ADODB.Connection
-Private m_Arr As Variant
-Private m_headers As Collection
-Private m_dataTypes As Collection
+Private m_conn As ADODB.Connection
+Private m_dbPath As String
 
 Private Sub Class_Terminate()
     Call CloseConnection
-    Set conn = Nothing
+    Set m_conn = Nothing
 End Sub
+Public Function ActiveConnection() As ADODB.Connection
+    Set ActiveConnection = m_conn
+End Function
+
+Public Function Tables() As DatabaseTables
+    If Tables Is Nothing Then
+        Set Tables = New DatabaseTables
+        Set Tables.Parent = Me
+        Call Tables.RefreshMetadata
+    End If
+End Function
+
+Public Sub ConnectTo(DBPath As String)
+    m_dbPath = DBPath
+    Call OpenConnection
+End Sub
+
 Public Function ExecuteQuery(ByVal queryString As String) As Boolean
     On Error GoTo Catch
     If OpenConnection Then
-        Call conn.Execute(queryString)
+        m_conn.BeginTrans
+        Call m_conn.Execute(queryString)
+        m_conn.CommitTrans
     End If
     On Error GoTo 0
     ExecuteQuery = True
     Exit Function
 Catch:
-    Call Utils.ThrowError("Error while executing single query (Database.ExecuteQuery). Connection State : " & CStr(conn.State) & ". Query string : " & queryString & ". Err description : " & Err.Description)
+    Call Utils.ThrowError("Error while executing single query (Database.ExecuteQuery). Connection State : " & CStr(m_conn.State) & ". Query string : " & queryString & ". Err description : " & Err.Description)
     On Error GoTo 0
     ExecuteQuery = False
+    m_conn.RollbackTrans
     Call CloseConnection
 End Function
+
 Public Function ExecuteMultipleQueries(ByVal queryCollection As Collection) As Boolean
     Dim tmpQuery As Variant
     On Error GoTo Catch
     If OpenConnection Then
-        Call conn.BeginTrans
+        Call m_conn.BeginTrans
         For Each tmpQuery In queryCollection
-            Call conn.Execute(CStr(tmpQuery))
+            Call m_conn.Execute(CStr(tmpQuery))
             DoEvents
         Next tmpQuery
+        Call m_conn.CommitTrans
+        Call CloseConnection
+        ExecuteMultipleQueries = True
     End If
-    Call conn.CommitTrans
-    Call CloseConnection
-    On Error GoTo 0
-    ExecuteMultipleQueries = True
     Exit Function
 Catch:
     If tmpQuery = vbNullString Then
-        Call Utils.ThrowError("Error while executing multiple queries. Rollback will be executed (Database.ExecuteMultipleQueries). Connection State : " & CStr(conn.State) & ". No query available.")
+        Call Utils.ThrowError("Error while executing multiple queries. Rollback will be executed (Database.ExecuteMultipleQueries). Connection State : " & CStr(m_conn.State) & ". No query available.")
     Else
-        Call Utils.ThrowError("Error while executing multiple queries. Rollback will be executed (Database.ExecuteMultipleQueries). Connection State : " & CStr(conn.State) & ". Err description : " & Err.Description)
+        Call Utils.ThrowError("Error while executing multiple queries. Rollback will be executed (Database.ExecuteMultipleQueries). Connection State : " & CStr(m_conn.State) & ". Err description : " & Err.Description)
     End If
     On Error GoTo 0
     ExecuteMultipleQueries = False
-    Call conn.RollbackTrans
-    Call CloseConnection
-End Function
-Public Function GetHeaders() As Collection
-    Set GetHeaders = m_headers
-End Function
-Public Function GetDataTypes() As Collection
-    Set GetDataTypes = m_dataTypes
-End Function
-
-Public Function GetRecords(ByVal queryString As String) As Variant '
-    Dim rs As Recordset, arr As Variant, i As Integer 'queryString As String,
-    Set rs = New ADODB.Recordset
-    On Error GoTo Catch
-    Set m_headers = New Collection
-    Set m_dataTypes = New Collection
-    If OpenConnection Then
-        With rs
-            .Source = queryString
-            .ActiveConnection = conn
-            .CursorLocation = adUseClient
-            .LockType = adLockOptimistic
-            .CursorType = adOpenForwardOnly
-            .Open
-        End With
-        arr = rs.GetRows()
-        For i = 0 To rs.Fields.Count - 1
-            Call m_headers.Add(rs.Fields(i).Name, CStr(rs.Fields(i).Name))
-            Call m_dataTypes.Add(rs.Fields(i).Type, CStr(rs.Fields(i).Name))
-        Next i
-        rs.Close
-    End If
-    GetRecords = arr
-    Set rs = Nothing
-    Call CloseConnection
-    Call Utils.Log.Info("Collected data from database successfully.")
-    Exit Function
-Catch:
-    If Err.Number = -2147467259 Then
-        Call Utils.WarnUser("Table is empty. Query string : " & queryString)
-    ElseIf Err <> 0 Then
-        Call Utils.ThrowError("Error while getting records (Database.GetRecords). Query string : " & queryString & ". Err description : " & Err.Description)
-    End If
-    On Error GoTo 0
-    Set rs = Nothing
+    Call m_conn.RollbackTrans
     Call CloseConnection
 End Function
 
-Private Function OpenConnection() As Boolean
+Private Sub OpenConnection()
     On Error GoTo Catch
-    If conn Is Nothing Then
-        Set conn = New ADODB.Connection
-        conn.ConnectionString = Replace(Constants.DB_CONNECTION_STRING, "<DB_PATH>", Constants.DB_PATH)
+    If m_conn Is Nothing Then
+        Set m_conn = New ADODB.Connection
+        m_conn.Provider = "Microsoft.ACE.OLEDB.12.0"
+        m_conn.Open m_dbPath
     End If
-    If conn.State = 0 Then
-        Call conn.Open
-        Call Utils.Log.Info("DB Connection is open.")
-    End If
-    OpenConnection = True
-    On Error GoTo 0
-    Exit Function
+    Exit Sub
 Catch:
     On Error GoTo 0
-    OpenConnection = False
-    Call Utils.ThrowError("Cannot connect to database. Error description : " & Err.Description)
-End Function
+    Call MsgBox("Cannot connect to database!", vbCritical + vbOKOnly, "Error")
+End Sub
+
 Private Sub CloseConnection()
-    If Not conn Is Nothing Then
-        If conn.State = 1 Then
-            conn.Close
+    If Not m_conn Is Nothing Then
+        If m_conn.State = 1 Then
+            m_conn.Close
             Call Utils.Log.Info("DB Connection is closed.")
         End If
     End If
 End Sub
+
+Public Property Get Name() As String
+    Name = FSO.GetFileName(m_dbPath)
+End Property
+
+Public Property Get Path() As String
+    Path = FSO.GetParentFolderName(m_dbPath)
+End Property
+
+Public Property Get FullName() As String
+    FullName = FSO.GetAbsolutePathName(m_dbPath)
+End Property
+
+Private Function FSO() As FileSystemObject
+    Set FSO = New FileSystemObject
+End Function
