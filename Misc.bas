@@ -132,3 +132,30 @@ Public Sub PrintFormLayout(Form As UserForm)
     Next c
     
 End Sub
+
+Function LevenshteinDistance(s1 As String, s2 As String) As Integer
+    Dim m As Integer, n As Integer, costMatrix() As Integer, i As Integer, j As Integer
+    m = Len(s1)
+    n = Len(s2)
+    ReDim costMatrix(0 To m, 0 To n)
+    For i = 0 To m
+        costMatrix(i, 0) = i
+    Next i
+    For j = 0 To n
+        costMatrix(0, j) = j
+    Next j
+    For i = 1 To m
+        For j = 1 To n
+            If LCase(Mid(s1, i, 1)) = LCase(Mid(s2, j, 1)) Then
+                costMatrix(i, j) = costMatrix(i - 1, j - 1)
+            Else
+                costMatrix(i, j) = Application.WorksheetFunction.Min( _
+                    costMatrix(i - 1, j), _
+                    costMatrix(i, j - 1), _
+                    costMatrix(i - 1, j - 1) _
+                ) + 1
+            End If
+        Next j
+    Next i
+    LevenshteinDistance = costMatrix(m, n)
+End Function
