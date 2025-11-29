@@ -64,3 +64,14 @@ Public Sub Rmdir(path As String)
     End If
 End Sub
 
+Public Function GetFileSize(path As String) As Long
+    On Error GoTo ErrorHandler
+    If Not Exists(path) Then
+        GetFileSize = -1
+        Exit Function
+    End If
+    GetFileSize = FileLen(path)
+    Exit Function
+ErrorHandler:
+    GetFileSize = -1
+End Function
