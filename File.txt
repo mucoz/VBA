@@ -1,0 +1,202 @@
+/* Dropdown animation */
+.custom-dropdown {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 120ms ease, transform 120ms ease;
+  pointer-events: none;
+}
+
+.custom-dropdown.show {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+/* Keyboard focus */
+.custom-dropdown .dropdown-item:focus {
+  background-color: #0d6efd;
+  color: #fff;
+  outline: none;
+}
+
+import { createPopper } from '@popperjs/core';
+
+export class CustomDropdown {
+  constructor(button, options = {}) {
+    this.button = button;
+    this.options = options;
+
+    this.dropdown = null;
+    this.popper = null;
+    this.items = [];
+    this.activeIndex = -1;
+
+    this.onOutsideClick = this.onOutsideClick.bind(this);
+    this.onKeyDown = this.onKeyDown.bind(this);
+  }
+
+  open() {
+    if (this.dropdown) return;
+
+    this.dropdown = document.createElement('div');
+    this.dropdown.className = 'dropdown-menu custom-dropdown';
+    this.dropdown.innerHTML = this.options.content || '';
+
+    document.body.appendChild(this.dropdown);
+
+    this.items = Array.from(
+      this.dropdown.querySelectorAll('.dropdown-item')
+    );
+
+    this.items.forEach((item, index) => {
+      item.setAttribute('tabindex', '-1');
+      item.addEventListener('click', (e) => {
+        if (this.options.onItemClick) {
+          this.options.onItemClick(item, index, e);
+        }
+        this.close();
+      });
+    });
+
+    this.popper = createPopper(this.button, this.dropdown, {
+      placement: this.options.placement || 'bottom-start'
+    });
+
+    requestAnimationFrame(() => {
+      this.dropdown.classList.add('show');
+    });
+
+    document.addEventListener('click', this.onOutsideClick);
+    document.addEventListener('keydown', this.onKeyDown);
+
+    if (this.options.onOpen) this.options.onOpen();
+  }
+
+  close() {
+    if (!this.dropdown) return;
+
+    this.dropdown.classList.remove('show');
+
+    setTimeout(() => {
+      document.removeEventListener('click', this.onOutsideClick);
+      document.removeEventListener('keydown', this.onKeyDown);
+
+      this.popper.destroy();
+      this.dropdown.remove();
+
+      this.dropdown = null;
+      this.popper = null;
+      this.items = [];
+      this.activeIndex = -1;
+
+      if (this.options.onClose) this.options.onClose();
+    }, 120);
+  }
+
+  toggle() {
+    this.dropdown ? this.close() : this.open();
+  }
+
+  onOutsideClick(e) {
+    if (
+      !this.dropdown.contains(e.target) &&
+      !this.button.contains(e.target)
+    ) {
+      this.close();
+    }
+  }
+
+  onKeyDown(e) {
+    if (!this.dropdown) return;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        this.focusNext();
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        this.focusPrev();
+        break;
+      case 'Home':
+        e.preventDefault();
+        this.focusItem(0);
+        break;
+      case 'End':
+        e.preventDefault();
+        this.focusItem(this.items.length - 1);
+        break;
+      case 'Enter':
+        if (this.activeIndex >= 0) {
+          this.items[this.activeIndex].click();
+        }
+        break;
+      case 'Escape':
+        this.close();
+        break;
+    }
+  }
+
+  focusNext() {
+    const next =
+      (this.activeIndex + 1) % this.items.length;
+    this.focusItem(next);
+  }
+
+  focusPrev() {
+    const prev =
+      (this.activeIndex - 1 + this.items.length) %
+      this.items.length;
+    this.focusItem(prev);
+  }
+
+  focusItem(index) {
+    this.activeIndex = index;
+    this.items[index].focus();
+  }
+}
+
+
+
+<button id="dropdownBtn" class="btn btn-primary">
+  Actions
+</button>
+
+
+import { CustomDropdown } from './CustomDropdown.js';
+
+const btn = document.getElementById('dropdownBtn');
+
+const dropdown = new CustomDropdown(btn, {
+  content: `
+    <button class="dropdown-item">Edit</button>
+    <button class="dropdown-item">Duplicate</button>
+    <button class="dropdown-item text-danger">Delete</button>
+  `,
+
+  onOpen() {
+    console.log('Dropdown opened');
+  },
+
+  onClose() {
+    console.log('Dropdown closed');
+  },
+
+  onItemClick(item, index) {
+    console.log('Clicked:', item.textContent, 'Index:', index);
+
+    if (item.textContent === 'Delete') {
+      alert('Deleting item...');
+    }
+  }
+});
+
+btn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  dropdown.toggle();
+});
+
+
+
+
+
